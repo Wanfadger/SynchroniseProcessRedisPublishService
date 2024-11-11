@@ -10,11 +10,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-@NamedEntityGraph(name = "region-district-graph" , attributeNodes = {
-		@NamedAttributeNode("districts")
-		}
-)
-
 
 @Entity
 @Table(name="Regions")

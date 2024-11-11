@@ -1,7 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.Status;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.Status;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 public class ParentEntity implements Serializable {
 
 	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid") 
+	@GenericGenerator(name = "system-uuid", strategy = "uuid")
 	@Id
 	private String id;
 

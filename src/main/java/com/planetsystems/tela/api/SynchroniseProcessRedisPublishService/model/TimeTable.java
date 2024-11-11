@@ -8,18 +8,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-//@NamedEntityGraph(name = "timeTable-detail-graph" , attributeNodes = {
-//		@NamedAttributeNode(value = "school"),
-//		@NamedAttributeNode(value = "academicTerm"),
-//		//@NamedAttributeNode(value = "timeTableLessons")
-//}
-//)
-//@NamedEntityGraph(name = "timeTable-graph" , attributeNodes = {
-//		@NamedAttributeNode(value = "school"),
-//		//@NamedAttributeNode(value = "academicTerm"),
-//		//@NamedAttributeNode(value = "timeTableLessons")
-//}
-//)
+
 @Entity
 @Table(name="TimeTables")
 @Getter

@@ -1,7 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository;
 
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.SubjectCategory;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.SubjectCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

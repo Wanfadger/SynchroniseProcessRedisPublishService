@@ -1,8 +1,9 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.Repository.projections.IdProjection;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.School;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.Status;
+
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.School;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.Status;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository.projections.IdProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

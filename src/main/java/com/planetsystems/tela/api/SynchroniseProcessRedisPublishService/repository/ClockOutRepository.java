@@ -1,7 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.ClockOut;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.*;
+
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.ClockOut;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
 
 @Repository
 public interface ClockOutRepository extends JpaRepository<ClockOut, String> {

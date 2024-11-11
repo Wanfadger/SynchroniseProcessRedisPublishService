@@ -1,6 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.Gender;
+
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.Gender;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

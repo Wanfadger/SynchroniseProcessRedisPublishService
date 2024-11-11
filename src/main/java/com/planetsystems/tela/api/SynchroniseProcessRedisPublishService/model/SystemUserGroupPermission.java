@@ -1,8 +1,9 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.PermissionType;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.SystemPermission;
+
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.PermissionType;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.SystemPermission;
 import jakarta.persistence.*;
 
 @Entity

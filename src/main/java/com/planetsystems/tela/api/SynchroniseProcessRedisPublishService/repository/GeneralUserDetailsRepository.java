@@ -1,14 +1,13 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.GeneralUserDetail;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.*;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.GeneralUserDetail;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-
 
 @Repository
 public interface GeneralUserDetailsRepository extends JpaRepository<GeneralUserDetail, String> {

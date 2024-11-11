@@ -1,15 +1,11 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.Status;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@NamedEntityGraph(name = "tela-schoolLicense-detail-graph" , attributeNodes = {
-		@NamedAttributeNode(value = "telaLicenseKey"),
-		@NamedAttributeNode(value = "school")
-} 
-)
+
 @Entity
 @Table(name = "TelaSchoolLicenses")
 @Getter

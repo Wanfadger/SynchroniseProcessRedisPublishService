@@ -1,7 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.Status;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,6 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.SubjectClassification;
+
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.SubjectClassification;
 import jakarta.persistence.*;
 
 import java.util.HashSet;

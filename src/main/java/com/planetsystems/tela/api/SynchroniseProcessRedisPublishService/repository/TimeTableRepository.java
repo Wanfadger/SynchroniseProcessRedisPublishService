@@ -1,8 +1,8 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository;
 
 
-import com.planetsystems.tela.api.ClockInOutConsumer.Repository.projections.IdProjection;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.TimeTable;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.TimeTable;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository.projections.IdProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface TimeTableRepository extends JpaRepository<TimeTable, String> {
 
 
-    Optional<IdProjection> findBySchool_IdAndAcademicTerm_Id(String schoolId,String termId);
+    Optional<IdProjection> findBySchool_IdAndAcademicTerm_Id(String schoolId, String termId);
 
     //
 //	//@EntityGraph(value = "timeTable-detail-graph" , type = EntityGraph.EntityGraphType.FETCH)

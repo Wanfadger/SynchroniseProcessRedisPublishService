@@ -3,17 +3,6 @@ package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
 import jakarta.persistence.*;
 
-@NamedEntityGraph(name = "systemUser-profile-school-detail-graph" , attributeNodes = {
-		@NamedAttributeNode(value = "systemUserProfile"),
-		@NamedAttributeNode(value = "school", subgraph = "school-sub-graph")
-} ,
-subgraphs = {
-		@NamedSubgraph(name = "school-sub-graph" , attributeNodes = {
-				@NamedAttributeNode(value = "schoolCategory"),
-				@NamedAttributeNode(value = "district")
-		})
-}
-)
 @Entity
 @Table(name="SystemUserProfileSchools")
 public class SystemUserProfileSchool extends ParentEntity{

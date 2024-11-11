@@ -1,14 +1,13 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository;
 
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.SNLearnerAttendance;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.SNLearnerAttendance;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-
 
 @Repository
 public interface SNLearnerAttendanceRepository extends JpaRepository<SNLearnerAttendance, String> {

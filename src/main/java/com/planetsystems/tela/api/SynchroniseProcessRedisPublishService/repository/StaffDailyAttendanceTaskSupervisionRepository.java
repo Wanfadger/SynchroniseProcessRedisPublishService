@@ -1,7 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.StaffDailyAttendanceSupervision;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.StaffDailyAttendanceTaskSupervision;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.StaffDailyAttendanceSupervision;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.StaffDailyAttendanceTaskSupervision;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

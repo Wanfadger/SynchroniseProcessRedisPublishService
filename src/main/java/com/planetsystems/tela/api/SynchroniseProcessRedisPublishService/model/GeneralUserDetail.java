@@ -1,7 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.Gender;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.Gender;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
@@ -12,10 +12,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
-
-//@Entity
-//@Table(name="GeneralUserDetails",indexes = {@Index(columnList = "id")})
-//@Cache(region = "generalUserDetailCache", usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity(name = "GeneralUserDetails")
 @Setter
 @Getter

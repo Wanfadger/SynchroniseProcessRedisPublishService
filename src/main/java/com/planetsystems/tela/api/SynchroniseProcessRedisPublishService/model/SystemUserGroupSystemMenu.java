@@ -5,12 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-//@NamedEntityGraph(name = "systemUserGroup-systemMenu-detail-graph" , attributeNodes = {
-//		@NamedAttributeNode(value = "systemUserGroup"),
-//		@NamedAttributeNode(value = "systemMenu"),
-//		@NamedAttributeNode(value = "createdBy"),
-//		@NamedAttributeNode(value = "updatedBy"),
-//})
 @Entity
 @Table(name="SystemUserGroupSystemMenus")
 //@Cache(region = "SystemUserGroupSystemMenuCache", usage = CacheConcurrencyStrategy.READ_WRITE)

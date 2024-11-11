@@ -1,6 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.ClockedStatus;
+
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.ClockedStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -12,7 +13,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-
 
 @Entity(name = "ClockIns")
 @Setter

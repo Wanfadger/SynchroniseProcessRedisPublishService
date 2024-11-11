@@ -1,8 +1,8 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.NavigationMenu;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.Status;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.SubMenuItem;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.NavigationMenu;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.Status;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.SubMenuItem;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;

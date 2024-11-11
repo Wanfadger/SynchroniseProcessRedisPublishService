@@ -1,8 +1,8 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.exception;
 
 
-import com.planetsystems.tela.api.ClockInOutConsumer.dto.MQResponseDto;
-import com.planetsystems.tela.api.ClockInOutConsumer.dto.SystemErrorDTO;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.MQResponseDto;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SystemErrorDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -1,7 +1,9 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.AuthAccountType;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.ConfigRole;
+
+
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.AuthAccountType;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.ConfigRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

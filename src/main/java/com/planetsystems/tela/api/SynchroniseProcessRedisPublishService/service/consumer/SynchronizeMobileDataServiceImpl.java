@@ -2,27 +2,24 @@ package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.planetsystems.tela.api.ClockInOutConsumer.Repository.*;
-import com.planetsystems.tela.api.ClockInOutConsumer.Repository.projections.ClockInProjection;
-import com.planetsystems.tela.api.ClockInOutConsumer.Repository.projections.IdProjection;
-import com.planetsystems.tela.api.ClockInOutConsumer.dto.*;
-import com.planetsystems.tela.api.ClockInOutConsumer.dto.supervision.StaffDailyAttendanceTaskSupervisionDTO;
-import com.planetsystems.tela.api.ClockInOutConsumer.dto.timetable.ClassTimetableDTO;
-import com.planetsystems.tela.api.ClockInOutConsumer.dto.timetable.StaffDailyTimetableDTO;
-import com.planetsystems.tela.api.ClockInOutConsumer.dto.timetable.TimeTableLessonDTO;
-import com.planetsystems.tela.api.ClockInOutConsumer.dto.timetable.TimetableDTO;
-import com.planetsystems.tela.api.ClockInOutConsumer.exception.TelaNotFoundException;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.*;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.*;
-import com.planetsystems.tela.api.ClockInOutConsumer.utils.Convertor;
-import com.planetsystems.tela.api.ClockInOutConsumer.utils.TelaDatePattern;
-import com.planetsystems.tela.api.ClockInOutConsumer.utils.publisher.QueueTopicPublisher;
-import jakarta.jms.Message;
-import lombok.NonNull;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.*;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.supervision.StaffDailyAttendanceTaskSupervisionDTO;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.ClassTimetableDTO;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.StaffDailyTimetableDTO;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.TimeTableLessonDTO;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.TimetableDTO;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.exception.TelaNotFoundException;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.*;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.*;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository.*;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository.projections.ClockInProjection;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository.projections.IdProjection;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.Convertor;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.TelaDatePattern;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.publisher.QueueTopicPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,98 +57,10 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
     final ObjectMapper objectMapper;
 
 
-    @JmsListener(destination = "${queue.synchronizeMobileData}" )
-    @Transactional
-    public void synchronizeMobileData(@NonNull Map<String, String> queryParam , Message message) {
-        log.info("synchronizeMobileData  {}"  , queryParam);
-        log.info("message  {}"  , message);
-        try {
-            String telaSchoolNumber = queryParam.get("telaSchoolNumber");
-            String dateParam = queryParam.get("date");
-
-            log.info("synchronizeMobileData started for {}", queryParam);
-            IdProjection schoolIdProjection = schoolRepository.findByTelaSchoolUIDAndStatusNot(telaSchoolNumber, Status.DELETED).orElseThrow(() -> new TelaNotFoundException("School with " + telaSchoolNumber + " not found"));
-
-            School school = schoolRepository.findByStatusNotAndId(Status.DELETED, schoolIdProjection.getId()).orElseThrow(() -> new TelaNotFoundException("School not found"));
-            AcademicTerm academicTerm = academicTermRepository.activeAcademicTerm(Status.ACTIVE).orElseThrow(() -> new TelaNotFoundException("Active term not found"));
-            // school information
-            // school
-            publishSchoolData(school, academicTerm);
-
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<List<ClassDTO>>(ResponseType.CLASSES , Collections.emptyList())));
-
-//                 classes
-//            publishSchoolClasses(school, academicTerm);
-
-            // staff
-//            publishSchoolStaffs(school, academicTerm);
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<List<ClassDTO>>(ResponseType.STAFFS , Collections.emptyList())));
-
-//                subjects
-//            publishSubjects(school, academicTerm);
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<List<ClassDTO>>(ResponseType.SUBJECTS , Collections.emptyList())));
-
-            //publishLearnerEnrollments
-//            publishLearnerEnrollments(school, academicTerm);
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<List<ClassDTO>>(ResponseType.LEARNER_HEADCOUNTS , Collections.emptyList())));
-
-            // publishSchoolTimetables
-            TimetableDTO timetableDTO = TimetableDTO.builder()
-                    .schoolId(school.getId())
-                    .academicTermId(academicTerm.getId())
-                    .id("")
-                    .classTimetables(Collections.emptyList())
-                    .build();
-
-//            publishSchoolTimetables(school, academicTerm);
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<TimetableDTO>(ResponseType.SCHOOL_TIMETABLE , timetableDTO)));
-
-
-            //publishStaffDailyTimetables
-//            publishStaffDailyTimetables(school, academicTerm, dateParam);
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<List<ClassDTO>>(ResponseType.STAFF_DAILY_TIMETABLES , Collections.emptyList())));
-
-
-            //publishLearnerAttendance
-//            publishLearnerAttendance(school, academicTerm, dateParam);
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<List<ClassDTO>>(ResponseType.LEARNER_ATTENDANCES , Collections.emptyList())));
-
-
-            //publishStaffDailyTimeAttendance
-//            publishStaffDailyTimeAttendanceSupervision(school, academicTerm, dateParam);
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<List<ClassDTO>>(ResponseType.STAFF_DAILY_TIME_ATTENDANCES , Collections.emptyList())));
-
-
-            //publishStaffDailyTimetableTaskSupervision
-//            publishStaffDailyTimetableTaskSupervision(school, academicTerm, dateParam);
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<List<ClassDTO>>(ResponseType.STAFF_DAILY_TASK_SUPERVISIONS , Collections.emptyList())));
-
-            //publishDistricts
-//            publishDistricts(school);
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<List<ClassDTO>>(ResponseType.DISTRICTS , Collections.emptyList())));
-
-            // clockins
-//            publishSchoolClockIns(school, academicTerm, dateParam);
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<List<ClassDTO>>(ResponseType.CLOCKINS , Collections.emptyList())));
-
-            //publishSchoolClockOuts
-//            publishSchoolClockOuts(school, academicTerm, dateParam);
-            queueTopicPublisher.publishTopicData(school.getTelaSchoolUID(), objectMapper.writeValueAsString(new MQResponseDto<List<ClassDTO>>(ResponseType.CLOCKOUTS , Collections.emptyList())));
-
-
-//            queueTopicPublisher.browseDeleteQueueMessages(TelaQueueNames.SynchronizeMobileDataQueue , message);
-//            queueTopicPublisher.deleteMessageFromQueue(TelaQueueNames.SynchronizeMobileDataQueue , message);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
-    public ResponseEntity<Boolean> synchronizeRestSchoolData(SynchronizeRestSchoolDataDTO dto) {
-
+    public ResponseEntity<Boolean> synchronizeSchoolData(SynchronizeSchoolDataDTO dto) {
         log.info("SynchronizeRestSchoolData {} " , dto);
-       String dateParam = dto.date();
+        String dateParam = dto.date();
         IdProjection schoolIdProjection = schoolRepository.findByTelaSchoolUIDAndStatusNot(dto.telaNumber(), Status.DELETED).orElseThrow(() -> new TelaNotFoundException("School with " + dto.telaNumber() + " not found"));
 
         School school = schoolRepository.findByStatusNotAndId(Status.DELETED, schoolIdProjection.getId()).orElseThrow(() -> new TelaNotFoundException("School not found"));
@@ -161,44 +70,44 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
         publishSchoolData(school, academicTerm);
 
 //                 classes
-            publishSchoolClasses(school, academicTerm);
+        publishSchoolClasses(school, academicTerm);
 
         // staff
-            publishSchoolStaffs(school, academicTerm);
+        publishSchoolStaffs(school, academicTerm);
 
 //                subjects
-            publishSubjects(school, academicTerm);
+        publishSubjects(school, academicTerm);
 
         //publishLearnerEnrollments
-            publishLearnerEnrollments(school, academicTerm);
+        publishLearnerEnrollments(school, academicTerm);
 
         // publishSchoolTimetables
 
-            publishSchoolTimetables(school, academicTerm);
+        publishSchoolTimetables(school, academicTerm);
 
 
         //publishStaffDailyTimetables
-            publishStaffDailyTimetables(school, academicTerm, dateParam);
+        publishStaffDailyTimetables(school, academicTerm, dateParam);
 
 
         //publishLearnerAttendance
-            publishLearnerAttendance(school, academicTerm, dateParam);
+        publishLearnerAttendance(school, academicTerm, dateParam);
 
 
         //publishStaffDailyTimeAttendance
-            publishStaffDailyTimeAttendanceSupervision(school, academicTerm, dateParam);
+        publishStaffDailyTimeAttendanceSupervision(school, academicTerm, dateParam);
 
         //publishStaffDailyTimetableTaskSupervision
-            publishStaffDailyTimetableTaskSupervision(school, academicTerm, dateParam);
+        publishStaffDailyTimetableTaskSupervision(school, academicTerm, dateParam);
 
         //publishDistricts
-            publishDistricts(school);
+        publishDistricts(school);
 
-            // clockins
-            publishSchoolClockIns(school, academicTerm, dateParam);
+        // clockins
+        publishSchoolClockIns(school, academicTerm, dateParam);
 
         //publishSchoolClockOuts
-            publishSchoolClockOuts(school, academicTerm, dateParam);
+        publishSchoolClockOuts(school, academicTerm, dateParam);
 
         return ResponseEntity.ok(true);
     }

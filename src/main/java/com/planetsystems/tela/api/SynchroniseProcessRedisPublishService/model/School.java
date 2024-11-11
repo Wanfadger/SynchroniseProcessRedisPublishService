@@ -1,6 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.*;
+
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,33 +11,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-//@NamedEntityGraphs({
-//		@NamedEntityGraph(name = "school-graph" , attributeNodes = {
-//				@NamedAttributeNode("schoolCategory"),
-//				@NamedAttributeNode(value = "district", subgraph = "region-sub-graph"),
-//				@NamedAttributeNode(value = "schoolClasses"),
-//				@NamedAttributeNode(value = "schoolStaffs"),
-//				@NamedAttributeNode(value = "timeAttendanceSupervisions")},
-//				subgraphs = {
-//						@NamedSubgraph(name = "region-sub-graph", attributeNodes = @NamedAttributeNode(value = "region"))
-//				}
-//		),
-//		@NamedEntityGraph(name = "partial-school-graph" , attributeNodes = {
-//				@NamedAttributeNode("schoolLevel"),
-//				@NamedAttributeNode(value = "schoolOwnership"),
-//				 }
-//		),
-//
-//})
-
-@NamedEntityGraph(name = "school-district-graph", attributeNodes = {
-        @NamedAttributeNode("district"),
-        @NamedAttributeNode("schoolCategory")
-})
-
-@NamedEntityGraph(name = "school-district-region-graph", attributeNodes = {@NamedAttributeNode("district")})
-
 
 @Entity
 @Table(name = "Schools")

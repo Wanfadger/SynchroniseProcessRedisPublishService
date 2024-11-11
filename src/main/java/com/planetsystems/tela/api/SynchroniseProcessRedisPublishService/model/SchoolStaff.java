@@ -1,7 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.StaffInServiceStatus;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.StaffType;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.StaffInServiceStatus;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.StaffType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,20 +11,6 @@ import lombok.experimental.SuperBuilder;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-
-//@NamedEntityGraph(name = "staff-with-details-graph" , attributeNodes = {
-//		@NamedAttributeNode("generalUserDetail"),
-//		@NamedAttributeNode(value = "school" , subgraph = "district-sub-graph")} ,
-//  subgraphs = {
-//		@NamedSubgraph(name = "district-sub-graph" , attributeNodes = @NamedAttributeNode("district"))
-//  }
-//)
-
-
-
-
-
 
 @Entity
 @Table(name = "SchoolStaffs")

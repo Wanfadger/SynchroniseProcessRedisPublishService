@@ -1,7 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.Repository.projections.ClockInProjection;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.ClockIn;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.ClockIn;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository.projections.ClockInProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

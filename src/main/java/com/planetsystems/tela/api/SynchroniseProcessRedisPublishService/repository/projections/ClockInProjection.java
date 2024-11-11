@@ -1,7 +1,8 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository.projections;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.ClockedStatus;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.Status;
+
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.ClockedStatus;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.Status;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

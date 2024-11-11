@@ -1,6 +1,5 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
-
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.AdministrationLevel;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.AdministrationLevel;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.LessonDay;
+
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.LessonDay;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,19 +10,6 @@ import lombok.Setter;
 
 import java.time.LocalTime;
 
-//@NamedEntityGraph(name = "timeTable-lesson-detail-graph" , attributeNodes = {
-//		@NamedAttributeNode(value = "schoolClass", subgraph = "schoolClass-sub-graph"),
-//		@NamedAttributeNode(value = "schoolStaff"),
-//		@NamedAttributeNode(value = "subject"),
-//		@NamedAttributeNode(value = "timeTable")
-//} ,
-//subgraphs = {
-//		@NamedSubgraph(name = "schoolClass-sub-graph" , attributeNodes = {
-//				@NamedAttributeNode(value = "school"),
-//				@NamedAttributeNode(value = "academicTerm")
-//		})
-//}
-//)
 @Entity
 @Table(name="TimeTableLessons")
 @Getter

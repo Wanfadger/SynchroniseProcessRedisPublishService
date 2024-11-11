@@ -1,7 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository;
 
 
-import com.planetsystems.tela.api.ClockInOutConsumer.model.StaffDailyAttendanceSupervision;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.StaffDailyAttendanceSupervision;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -19,7 +19,7 @@ public interface StaffDailyAttendanceSupervisionRepository extends JpaRepository
             WHERE SAS.status <> 8 AND ST.status <> 8
             AND ST.school.id =:schoolId AND SAS.supervisionDate BETWEEN :termStartDate AND :termEndDate
             """)
-    List<StaffDailyAttendanceSupervision> allByTerm_School(LocalDate termStartDate , LocalDate termEndDate ,String schoolId );
+    List<StaffDailyAttendanceSupervision> allByTerm_School(LocalDate termStartDate , LocalDate termEndDate , String schoolId );
 
 //    @Query("""
 //            SELECT SAS FROM StaffDailyAttendanceSupervision AS SAS

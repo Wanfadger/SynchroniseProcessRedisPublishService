@@ -10,14 +10,7 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDate;
 
 @Entity
-//@Table(name = "SNLearnerAttendances", indexes = {
-//		@Index(columnList = "id,attendanceDate,girlsPresent,boysPresent,boysAbsent,comment") })
-//@Cache(region = "snLearnerAttendanceCache", usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "SNLearnerAttendances")
-@NamedEntityGraph(name = "snlearnerattendance-schoolclass-academicterm-staff-graph", attributeNodes = {
-		@NamedAttributeNode(value = "schoolClass"),
-		@NamedAttributeNode(value = "academicTerm"),
-		@NamedAttributeNode(value = "schoolStaff") })
 @Setter
 @Getter
 @AllArgsConstructor

@@ -1,8 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository;
 
-
-import com.planetsystems.tela.api.ClockInOutConsumer.model.StaffDailyTimeTable;
-import com.planetsystems.tela.api.ClockInOutConsumer.model.StaffDailyTimeTableLesson;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.StaffDailyTimeTable;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.StaffDailyTimeTableLesson;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -1,21 +1,10 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model;
 
-
-import com.planetsystems.tela.api.ClockInOutConsumer.model.enums.AttendanceStatus;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.AttendanceStatus;
 import jakarta.persistence.*;
 
 import java.util.Date;
-@NamedEntityGraph(name = "smc-supervision-detail-graph" , attributeNodes = {
-		@NamedAttributeNode(value = "academicTerm"),
-		@NamedAttributeNode(value = "school"),
-		@NamedAttributeNode(value = "supervisor", subgraph = "supervisor-sub-graph")
-} ,
-subgraphs = {
-		@NamedSubgraph(name = "supervisor-sub-graph" , attributeNodes = {
-				@NamedAttributeNode(value = "generalUserDetail")
-		})
-}
-)
+
 @Entity
 @Table(name="SMCSupervisions")
 public class SMCSupervision extends ParentEntity {
