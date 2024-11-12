@@ -14,4 +14,5 @@ public enum ResponseType implements Serializable {
     STAFF_DAILY_TASK_SUPERVISIONS("STAFF_DAILY_TASK_SUPERVISIONS") , SCHOOL_COORDINATES("SCHOOL_COORDINATES");
 
         String type;
+
 }
