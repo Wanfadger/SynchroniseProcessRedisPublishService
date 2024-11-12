@@ -27,8 +27,6 @@ public class JmsConfig {
 //        connectionFactory.setClientId("TELA_CLOCK_IN_TOPIC_ID");
 //        factory.setClientId("TELA_CLOCK_IN_TOPIC_ID");
         configurer.configure(factory, connectionFactory);
-        
-
 
         factory.setErrorHandler(t -> {
             log.info("An error has occurred in the transaction");
