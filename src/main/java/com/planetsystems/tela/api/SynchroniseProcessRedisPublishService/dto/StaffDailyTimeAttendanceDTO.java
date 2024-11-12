@@ -4,12 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class StaffDailyTimeAttendanceDTO {
+public class StaffDailyTimeAttendanceDTO implements Serializable {
     String id;
     @NotEmpty(message = "staffId is required")
     @NotBlank(message = "staffId is required")
