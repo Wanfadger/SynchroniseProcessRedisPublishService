@@ -1,6 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.controllers;
 
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SynchronizeSchoolDataDTO;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SystemAppFeedBack;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.publisher.SynchronizeMobileDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class SynchroniseTelaDataController {
     final SynchronizeMobileDataService synchronizeMobileDataService;
 
     @PostMapping
-    public ResponseEntity<Boolean> synchronizeSchoolData(@RequestBody SynchronizeSchoolDataDTO dto){
+    public ResponseEntity<SystemAppFeedBack<Boolean>> synchronizeSchoolData(@RequestBody SynchronizeSchoolDataDTO dto){
         return synchronizeMobileDataService.synchronizeSchoolData(dto);
     }
 }

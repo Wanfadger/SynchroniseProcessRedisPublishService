@@ -3,12 +3,13 @@ package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SchoolDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SynchronizeSchoolDataDTO;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SystemAppFeedBack;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.AcademicTerm;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.School;
 import org.springframework.http.ResponseEntity;
 
 public interface SynchronizeMobileDataService {
-    ResponseEntity<Boolean> synchronizeSchoolData(SynchronizeSchoolDataDTO dto);
+    ResponseEntity<SystemAppFeedBack<Boolean>> synchronizeSchoolData(SynchronizeSchoolDataDTO dto);
 
 
 
@@ -25,7 +26,7 @@ public interface SynchronizeMobileDataService {
 
 
     void publishStaffDailyTimetables(SchoolDTO schoolDTO , String dateParam) throws JsonProcessingException;
-    void publishDistricts();
+    void publishDistricts(SchoolDTO schoolDTO) throws JsonProcessingException;
     void publishSchoolTimetables(SchoolDTO schoolDTO) throws JsonProcessingException;
 
 
