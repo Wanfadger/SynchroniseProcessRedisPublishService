@@ -2,6 +2,7 @@ package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.tim
 
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TimetableDTO {
+public class TimetableDTO implements Serializable {
  private String id = "";
  private String academicTermId = "";
  private String schoolId = "";
