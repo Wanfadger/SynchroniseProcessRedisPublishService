@@ -2,6 +2,7 @@ package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.tim
 
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @ToString
-public class ClassTimetableDTO {
+public class ClassTimetableDTO implements Serializable {
     private String id = "";
     private String classId = "";
     private String breakStartTime = "";
