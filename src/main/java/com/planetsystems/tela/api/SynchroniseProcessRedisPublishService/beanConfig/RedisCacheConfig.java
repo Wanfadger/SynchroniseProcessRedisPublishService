@@ -27,7 +27,6 @@ public class RedisCacheConfig {
     public JedisConnectionFactory jedisConnectionFactory(){
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
         return new JedisConnectionFactory(config);
-//        return new JedisConnectionFactory();
     }
 
 
@@ -37,7 +36,6 @@ public class RedisCacheConfig {
     @Bean
     public RedisTemplate< String , Object> redisTemplate(RedisConnectionFactory redisConnectionFactory){
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
-
         RedisTemplate< String , Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setEnableTransactionSupport(true);
