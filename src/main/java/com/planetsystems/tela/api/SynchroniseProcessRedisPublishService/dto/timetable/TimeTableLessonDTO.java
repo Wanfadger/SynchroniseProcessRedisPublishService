@@ -3,13 +3,15 @@ package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.tim
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
 @ToString
-public class TimeTableLessonDTO {
+public class TimeTableLessonDTO implements Serializable {
     private String id;
     private String startTime;
     private String endTime;
