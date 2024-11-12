@@ -1,7 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.controllers;
 
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SynchronizeSchoolDataDTO;
-import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.consumer.SynchronizeMobileDataService;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.publisher.SynchronizeMobileDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
