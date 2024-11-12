@@ -2,13 +2,15 @@ package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.tim
 
 import lombok.*;
 
+import java.io.Serializable;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @ToString
-public class StaffDailyTimetableDTO {
+public class StaffDailyTimetableDTO implements Serializable {
     String id;
     String subjectId;
     String classId;
