@@ -2,32 +2,15 @@ package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto;
 
 import lombok.*;
 
+import java.io.Serializable;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
 @Builder
 @ToString
-public class LearnerAttendanceDTO {
-//    private String classId;
-//    private String attendanceDate;
-//    private AttendanceDTO general;
-//    private AttendanceDTO specialNeeds;
-//
-//    @AllArgsConstructor
-//    @NoArgsConstructor
-//    @Setter
-//    @Getter
-//    @Builder
-//   public static class AttendanceDTO{
-//        private long girlsPresent;
-//        private long boysPresent;
-//        private long boysAbsent;
-//        private long girlsAbsent;
-//        private String comment;
-//        private String staffId;
-//    }
-
+public class LearnerAttendanceDTO implements Serializable {
     String classId;
     String staffId;
     String comment;
