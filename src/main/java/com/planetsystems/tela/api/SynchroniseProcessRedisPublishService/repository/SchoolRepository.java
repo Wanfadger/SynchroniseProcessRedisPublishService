@@ -23,6 +23,14 @@ public interface SchoolRepository extends JpaRepository<School, String> {
 
     Optional<IdProjection> findByTelaSchoolUIDAndStatusNot(String telaSchoolUID, Status status);
 
+    @Query(value = """
+                 SELECT S FROM School AS S
+                 JOIN FETCH S.district
+                 LEFT JOIN S.schoolGeoCoordinateList AS SG
+                 WHERE S.status <> :status AND S.telaSchoolUID = :telaNumber OR S.deviceNumber = :deviceNumber
+            """)
+    Optional<School> byTelaNumberOrDeviceNumber(Status status, String telaNumber , String deviceNumber);
+
 
     @Query("""
              SELECT S.id AS id FROM School  AS S WHERE 
