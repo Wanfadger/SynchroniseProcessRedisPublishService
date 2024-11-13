@@ -50,7 +50,7 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
 
     @Override
     public ResponseEntity<SystemAppFeedBack<Boolean>> synchronizeSchoolData(SynchronizeSchoolDataDTO dto) {
-        log.info("SynchronizeRestSchoolData {} " , dto);
+        log.info("synchronizeSchoolData {} " , dto);
 //        String dateParam = dto.date();
 //        IdProjection schoolIdProjection = schoolRepository.findByTelaSchoolUIDAndStatusNot(dto.telaNumber(), Status.DELETED).orElseThrow(() -> new TelaNotFoundException("School with " + dto.telaNumber() + " not found"));
 //
