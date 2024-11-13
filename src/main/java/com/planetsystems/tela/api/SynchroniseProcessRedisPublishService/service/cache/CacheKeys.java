@@ -1,4 +1,4 @@
-package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.redis;
+package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.cache;
 
 public interface CacheKeys {
    String SCHOOL="SCHOOL";
