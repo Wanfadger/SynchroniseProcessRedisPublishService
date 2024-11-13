@@ -1,4 +1,4 @@
-package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.redis;
+package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.cache;
 
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.*;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.supervision.StaffDailyAttendanceTaskSupervisionDTO;
@@ -314,7 +314,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.CLOCKINS , key = "{'school='+#schoolDTO.id+',term='+#schoolDTO.academicTerm.id}")
+    @Cacheable(value = CacheKeys.CLOCKINS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}")
     public MQResponseDto<List<ClockInDTO>> cacheSchoolTermClockIns(SchoolDTO schoolDTO) {
         List<ClockInProjection> schoolDateClockIns = clockInRepository.nativeAllByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
 
@@ -348,7 +348,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.CLOCKOUTS , key = "{'school='+#schoolDTO.id+',term='+#schoolDTO.academicTerm.id}")
+    @Cacheable(value = CacheKeys.CLOCKOUTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}")
     public MQResponseDto<List<ClockOutDTO>> cacheSchoolTermClockOuts(SchoolDTO schoolDTO) {
         List<ClockOut> schoolClockOuts  = clockOutRepository.allByTerm_SchoolWithStaff(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
         List<ClockOutDTO> clockOutDTOS = schoolClockOuts.parallelStream().map(clockOut -> {
@@ -401,7 +401,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.LEARNER_HEADCOUNTS , key = "{'school='+#schoolDTO.id+',term='+#schoolDTO.academicTerm.id}")
+    @Cacheable(value = CacheKeys.LEARNER_HEADCOUNTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}")
     public MQResponseDto<List<LearnerHeadCountDTO>> cacheLearnerEnrollments(SchoolDTO schoolDTO) {
         List<LearnerHeadCountDTO> generalLearnerHeadCountDTOS = learnerEnrollmentRepository.allBySchool_term(schoolDTO.getId(), schoolDTO.getAcademicTerm().getId()).parallelStream()
                 .map(enrollment -> {
@@ -439,7 +439,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.LEARNER_ATTENDANCES , key = "{'school='+#schoolDTO.id+',term='+#schoolDTO.academicTerm.id}")
+    @Cacheable(value = CacheKeys.LEARNER_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}")
     public  MQResponseDto<List<LearnerAttendanceDTO>> cacheLearnerAttendance(SchoolDTO schoolDTO) {
         log.info("publishLearnerAttendance");
         List<LearnerAttendance> learnerAttendanceList = learnerAttendanceRepository.allByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
@@ -489,7 +489,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.STAFF_DAILY_TIME_ATTENDANCES , key = "{'school='+#schoolDTO.id+',term='+#schoolDTO.academicTerm.id}")
+    @Cacheable(value = CacheKeys.STAFF_DAILY_TIME_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}")
     public MQResponseDto<List<StaffDailyTimeAttendanceDTO>> cacheStaffDailyTimeAttendanceSupervision(SchoolDTO schoolDTO, String dateParam) {
 
         List<StaffDailyAttendanceSupervision> staffDailyAttendanceSupervisions = staffDailyAttendanceSupervisionRepository
@@ -520,7 +520,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.STAFF_DAILY_TASK_SUPERVISIONS , key = "{'school='+#schoolDTO.id+',term='+#schoolDTO.academicTerm.id}")
+    @Cacheable(value = CacheKeys.STAFF_DAILY_TASK_SUPERVISIONS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}")
     public MQResponseDto<List<StaffDailyAttendanceTaskSupervisionDTO>> cacheStaffDailyTimetableTaskSupervision(SchoolDTO schoolDTO , String dateParam) {
         LocalDate startDate = LocalDate.parse(schoolDTO.getAcademicTerm().getStartDate(), TelaDatePattern.datePattern);
         LocalDate endDate = LocalDate.parse(schoolDTO.getAcademicTerm().getEndDate(), TelaDatePattern.datePattern);
@@ -561,7 +561,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.STAFF_DAILY_TIMETABLES , key = "{'school='+#schoolDTO.id+',term='+#schoolDTO.academicTerm.id}")
+    @Cacheable(value = CacheKeys.STAFF_DAILY_TIMETABLES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}")
     public MQResponseDto<List<StaffDailyTimetableDTO>> cacheStaffDailyTimetables(SchoolDTO schoolDTO) {
 
         List<StaffDailyTimeTable> termStaffDailyTimeTables = staffDailyTimeTableRepository.allByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
@@ -612,7 +612,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.SCHOOL_TIMETABLE , key = "{'school='+#schoolDTO.id+',term='+#schoolDTO.academicTerm.id}")
+    @Cacheable(value = CacheKeys.SCHOOL_TIMETABLE , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}")
     public MQResponseDto<TimetableDTO> cacheSchoolTimetables(SchoolDTO schoolDTO) {
         Optional<IdProjection> idProjectionOptional = timeTableRepository.findBySchool_IdAndAcademicTerm_Id(schoolDTO.getId(), schoolDTO.getAcademicTerm().getId());
 
