@@ -15,7 +15,7 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import java.time.Duration;
 
 @Configuration
-public class RedisCacheConfig {
+public class SynchroniseCacheConfig {
 
     @Value("${spring.data.redis.host}")
     String host;
