@@ -1,11 +1,9 @@
-package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.redis;
+package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.cache;
 
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.*;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.supervision.StaffDailyAttendanceTaskSupervisionDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.StaffDailyTimetableDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.TimetableDTO;
-import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.AcademicTerm;
-import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.School;
 
 import java.util.List;
 
