@@ -6,7 +6,7 @@ import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.*;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.supervision.StaffDailyAttendanceTaskSupervisionDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.StaffDailyTimetableDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.TimetableDTO;
-import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.redis.CacheService;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.cache.CacheService;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.TelaDatePattern;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.publisher.QueueTopicPublisher;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
