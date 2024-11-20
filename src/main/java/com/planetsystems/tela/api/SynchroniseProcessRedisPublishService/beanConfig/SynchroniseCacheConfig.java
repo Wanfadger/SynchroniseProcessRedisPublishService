@@ -59,6 +59,18 @@ public class SynchroniseCacheConfig {
                 .build();
     }
 
+    @Bean("halfHourCacheManager")
+    public RedisCacheManager halfHourCacheManager(RedisConnectionFactory connectionFactory) {
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig() //
+                .prefixCacheNameWith(this.getClass().getPackageName() + ".") //
+                .entryTtl(Duration.ofMinutes(30)) //
+                .disableCachingNullValues();
+
+        return RedisCacheManager.builder(connectionFactory) //
+                .cacheDefaults(config) //
+                .build();
+    }
+
     @Bean("hourCacheManager")
     public RedisCacheManager hourCacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig() //
