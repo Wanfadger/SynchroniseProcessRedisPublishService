@@ -51,7 +51,7 @@ public class CacheServiceImpl implements CacheService{
 
 
     @Override
-    @Cacheable(value = CacheKeys.ACTIVE_ACADEMIC_TERM , cacheManager = "monthCacheManager")
+    @Cacheable(value = CacheKeys.ACTIVE_ACADEMIC_TERM , cacheManager = "halfHourCacheManager")
     public AcademicTermDTO cacheActiveAcademicTerm() {
         AcademicTerm academicTerm = academicTermRepository.activeAcademicTerm(Status.ACTIVE).orElseThrow(() -> new TelaNotFoundException("Active term not found"));
         AcademicTermDTO academicTermDTO = AcademicTermDTO.builder()
@@ -66,7 +66,7 @@ public class CacheServiceImpl implements CacheService{
 
 
     @Override
-    @Cacheable(value = CacheKeys.SCHOOL , key = "#telaSchoolNumber" , cacheManager = "weekCacheManager")
+    @Cacheable(value = CacheKeys.SCHOOL , key = "#telaSchoolNumber" , cacheManager = "halfHourCacheManager")
     public SchoolDTO cacheSchoolData(String telaSchoolNumber) {
        try {
            School school = schoolRepository.byTelaNumberOrDeviceNumber(Status.DELETED , telaSchoolNumber , telaSchoolNumber).orElseThrow(() -> new TelaNotFoundException("School not found"));
@@ -109,7 +109,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.CLASSES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "weekCacheManager")
+    @Cacheable(value = CacheKeys.CLASSES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public MQResponseDto<List<ClassDTO>> cacheSchoolClasses(SchoolDTO schoolDTO) {
             List<ClassDTO> classDTOS = schoolClassRepository
                     .findAllByStatusNotAndAcademicTerm_IdAndSchool_Id(Status.DELETED, schoolDTO.getAcademicTerm().getId(), schoolDTO.getId())
@@ -221,7 +221,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.STAFFS , key = "#schoolDTO.telaSchoolNumber", cacheManager = "weekCacheManager")
+    @Cacheable(value = CacheKeys.STAFFS , key = "#schoolDTO.telaSchoolNumber", cacheManager = "halfHourCacheManager")
     public MQResponseDto<List<StaffDTO>> cacheSchoolStaffs(SchoolDTO schoolDTO) {
         List<StaffDTO> staffDTOList = schoolStaffRepository.findAllBySchoolWithSchool_StaffDetail(Status.DELETED, schoolDTO.getId())
                 .parallelStream()
@@ -314,7 +314,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.CLOCKINS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "weekCacheManager")
+    @Cacheable(value = CacheKeys.CLOCKINS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public MQResponseDto<List<ClockInDTO>> cacheSchoolTermClockIns(SchoolDTO schoolDTO) {
         List<ClockInProjection> schoolDateClockIns = clockInRepository.nativeAllByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
 
@@ -348,7 +348,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.CLOCKOUTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "weekCacheManager")
+    @Cacheable(value = CacheKeys.CLOCKOUTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public MQResponseDto<List<ClockOutDTO>> cacheSchoolTermClockOuts(SchoolDTO schoolDTO) {
         List<ClockOut> schoolClockOuts  = clockOutRepository.allByTerm_SchoolWithStaff(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
         List<ClockOutDTO> clockOutDTOS = schoolClockOuts.parallelStream().map(clockOut -> {
@@ -384,7 +384,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.SUBJECTS, cacheManager = "weekCacheManager")
+    @Cacheable(value = CacheKeys.SUBJECTS, cacheManager = "halfHourCacheManager")
     public MQResponseDto<List<IdNameCodeDTO>> cacheSubjects(SchoolDTO schoolDTO) {
 
         SchoolLevel schoolLevel = SchoolLevel.getSchoolLevel(schoolDTO.getSchoolLevel());
@@ -401,7 +401,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.LEARNER_HEADCOUNTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "weekCacheManager")
+    @Cacheable(value = CacheKeys.LEARNER_HEADCOUNTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public MQResponseDto<List<LearnerHeadCountDTO>> cacheLearnerEnrollments(SchoolDTO schoolDTO) {
         List<LearnerHeadCountDTO> generalLearnerHeadCountDTOS = learnerEnrollmentRepository.allBySchool_term(schoolDTO.getId(), schoolDTO.getAcademicTerm().getId()).parallelStream()
                 .map(enrollment -> {
@@ -439,7 +439,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.LEARNER_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}")
+    @Cacheable(value = CacheKeys.LEARNER_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "halfHourCacheManager")
     public  MQResponseDto<List<LearnerAttendanceDTO>> cacheLearnerAttendance(SchoolDTO schoolDTO) {
         log.info("publishLearnerAttendance");
         List<LearnerAttendance> learnerAttendanceList = learnerAttendanceRepository.allByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
@@ -489,7 +489,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.STAFF_DAILY_TIME_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "weekCacheManager")
+    @Cacheable(value = CacheKeys.STAFF_DAILY_TIME_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public MQResponseDto<List<StaffDailyTimeAttendanceDTO>> cacheStaffDailyTimeAttendanceSupervision(SchoolDTO schoolDTO, String dateParam) {
 
         List<StaffDailyAttendanceSupervision> staffDailyAttendanceSupervisions = staffDailyAttendanceSupervisionRepository
@@ -520,7 +520,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.STAFF_DAILY_TASK_SUPERVISIONS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "weekCacheManager")
+    @Cacheable(value = CacheKeys.STAFF_DAILY_TASK_SUPERVISIONS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public MQResponseDto<List<StaffDailyAttendanceTaskSupervisionDTO>> cacheStaffDailyTimetableTaskSupervision(SchoolDTO schoolDTO , String dateParam) {
         LocalDate startDate = LocalDate.parse(schoolDTO.getAcademicTerm().getStartDate(), TelaDatePattern.datePattern);
         LocalDate endDate = LocalDate.parse(schoolDTO.getAcademicTerm().getEndDate(), TelaDatePattern.datePattern);
@@ -561,7 +561,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.STAFF_DAILY_TIMETABLES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "weekCacheManager")
+    @Cacheable(value = CacheKeys.STAFF_DAILY_TIMETABLES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public MQResponseDto<List<StaffDailyTimetableDTO>> cacheStaffDailyTimetables(SchoolDTO schoolDTO) {
 
         List<StaffDailyTimeTable> termStaffDailyTimeTables = staffDailyTimeTableRepository.allByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
@@ -596,7 +596,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.DISTRICTS, cacheManager = "monthCacheManager")
+    @Cacheable(value = CacheKeys.DISTRICTS, cacheManager = "halfHourCacheManager")
     public MQResponseDto<List<DistrictDTO>> cacheDistricts() {
         List<DistrictDTO> districtDTOS = districtRepository.findAllByStatusNot(Status.DELETED)
                 .parallelStream()
@@ -612,7 +612,7 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.SCHOOL_TIMETABLE , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "monthCacheManager")
+    @Cacheable(value = CacheKeys.SCHOOL_TIMETABLE , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "halfHourCacheManager")
     public MQResponseDto<TimetableDTO> cacheSchoolTimetables(SchoolDTO schoolDTO) {
         Optional<IdProjection> idProjectionOptional = timeTableRepository.findBySchool_IdAndAcademicTerm_Id(schoolDTO.getId(), schoolDTO.getAcademicTerm().getId());
 
