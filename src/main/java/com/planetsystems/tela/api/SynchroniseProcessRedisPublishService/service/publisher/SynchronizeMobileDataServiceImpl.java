@@ -112,7 +112,7 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
 
 
 //
-        return ResponseEntity.ok(new SystemAppFeedBack<>(true , "success"));
+        return ResponseEntity.ok(new SystemAppFeedBack<>(true , "success" , true));
     }
 
     @Override
