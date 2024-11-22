@@ -6,11 +6,13 @@ import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.*;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.supervision.StaffDailyAttendanceTaskSupervisionDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.StaffDailyTimetableDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.TimetableDTO;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.cache.CacheKeys;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.cache.CacheService;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.TelaDatePattern;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.publisher.QueueTopicPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -249,6 +251,12 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
         MQResponseDto<List<DistrictDTO>> listMQResponseDto = cacheService.cacheDistricts();
         queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
         log.info("publishDistricts PUBLISHED for {} ", listMQResponseDto.getData().size());
+    }
+
+    @CacheEvict(value = CacheKeys.DISTRICTS)
+    @Override
+    public void evictDistricts() {
+
     }
 
     @Override
