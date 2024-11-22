@@ -12,9 +12,6 @@ import org.springframework.jms.connection.SingleConnectionFactory;
 @Configuration
 @Slf4j
 public class JmsConfig {
-
-
-
     @Bean
     public JmsListenerContainerFactory<?> topicConnectionFactory(SingleConnectionFactory connectionFactory,
                                                                  DefaultJmsListenerContainerFactoryConfigurer configurer) {
@@ -24,8 +21,6 @@ public class JmsConfig {
         factory.setConcurrency("1");
         factory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
         factory.setSessionTransacted(false);
-//        connectionFactory.setClientId("TELA_CLOCK_IN_TOPIC_ID");
-//        factory.setClientId("TELA_CLOCK_IN_TOPIC_ID");
         configurer.configure(factory, connectionFactory);
 
         factory.setErrorHandler(t -> {
