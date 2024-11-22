@@ -23,5 +23,6 @@ public interface CacheService {
 
     MQResponseDto<List<StaffDailyTimetableDTO>> cacheStaffDailyTimetables(SchoolDTO schoolDTO);
     MQResponseDto<List<DistrictDTO>> cacheDistricts();
+
     MQResponseDto<TimetableDTO> cacheSchoolTimetables(SchoolDTO schoolDTO);
 }
