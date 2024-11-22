@@ -24,6 +24,7 @@ public interface SynchronizeMobileDataService {
 
     void publishStaffDailyTimetables(SchoolDTO schoolDTO , String dateParam) throws JsonProcessingException;
     void publishDistricts(SchoolDTO schoolDTO) throws JsonProcessingException;
+    void evictDistricts();
     void publishSchoolTimetables(SchoolDTO schoolDTO) throws JsonProcessingException;
 
 
