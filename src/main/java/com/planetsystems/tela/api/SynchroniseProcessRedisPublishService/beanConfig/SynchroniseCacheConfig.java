@@ -30,7 +30,6 @@ public class SynchroniseCacheConfig {
         return jedisConnectionFactory;
     }
 
-
     @Bean
     public RedisTemplate< String , Object> redisTemplate(JedisConnectionFactory redisConnectionFactory){
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
@@ -49,79 +48,41 @@ public class SynchroniseCacheConfig {
     }
 
 
-
-
     @Bean
     @Primary
     public RedisCacheManager cacheManager() {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig() //
-//                .prefixCacheNameWith(this.getClass().getPackageName() + ".") //
-                .disableCachingNullValues();
-
-        return RedisCacheManager.builder(jedisConnectionFactory()) //
-                .cacheDefaults(config) //
-                .build();
-
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().disableCachingNullValues();
+        return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
 
     @Bean("halfHourCacheManager")
     public RedisCacheManager halfHourCacheManager() {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig() //
-//                .prefixCacheNameWith(this.getClass().getPackageName() + ".") //
-                .entryTtl(Duration.ofMinutes(30)) //
-                .disableCachingNullValues();
-
-        return RedisCacheManager.builder(jedisConnectionFactory()) //
-                .cacheDefaults(config) //
-                .build();
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(30)).disableCachingNullValues();
+        return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
 
     @Bean("hourCacheManager")
     public RedisCacheManager hourCacheManager() {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig() //
-//                .prefixCacheNameWith(this.getClass().getPackageName() + ".") //
-                .entryTtl(Duration.ofHours(1)) //
-                .disableCachingNullValues();
-
-        return RedisCacheManager.builder(jedisConnectionFactory()) //
-                .cacheDefaults(config) //
-                .build();
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1)).disableCachingNullValues();
+        return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
 
     @Bean("_24HourCacheManager")
     public RedisCacheManager _24HourCacheManager() {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig() //
-//                .prefixCacheNameWith(this.getClass().getPackageName() + ".") //
-                .entryTtl(Duration.ofHours(1*24)) //
-                .disableCachingNullValues();
-
-        return RedisCacheManager.builder(jedisConnectionFactory()) //
-                .cacheDefaults(config) //
-                .build();
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1*24)).disableCachingNullValues();
+        return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
 
     @Bean("weekCacheManager")
     public RedisCacheManager weekCacheManager() {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig() //
-//                .prefixCacheNameWith(this.getClass().getPackageName() + ".") //
-                .entryTtl(Duration.ofDays(7)) //
-                .disableCachingNullValues();
-
-        return RedisCacheManager.builder(jedisConnectionFactory()) //
-                .cacheDefaults(config) //
-                .build();
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(7)).disableCachingNullValues();
+        return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
 
 
     @Bean("monthCacheManager")
     public RedisCacheManager monthCacheManager() {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig() //
-//                .prefixCacheNameWith(this.getClass().getPackageName() + ".") //
-                .entryTtl(Duration.ofDays(30)) //
-                .disableCachingNullValues();
-
-        return RedisCacheManager.builder(jedisConnectionFactory()) //
-                .cacheDefaults(config) //
-                .build();
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(30)).disableCachingNullValues();
+        return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
 }
