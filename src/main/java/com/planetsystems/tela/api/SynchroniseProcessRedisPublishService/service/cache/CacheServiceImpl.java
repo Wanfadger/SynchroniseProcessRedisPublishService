@@ -16,6 +16,7 @@ import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.Co
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.TelaDatePattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -610,6 +611,8 @@ public class CacheServiceImpl implements CacheService{
 
         return responseDto;
     }
+
+
 
     @Override
     @Cacheable(value = CacheKeys.SCHOOL_TIMETABLE , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "halfHourCacheManager")
