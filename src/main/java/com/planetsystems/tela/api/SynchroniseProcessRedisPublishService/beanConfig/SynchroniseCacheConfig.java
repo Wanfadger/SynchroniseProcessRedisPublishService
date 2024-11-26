@@ -80,26 +80,38 @@ public class SynchroniseCacheConfig {
 
     @Bean("hourCacheManager")
     public RedisCacheManager hourCacheManager() {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1)).disableCachingNullValues();
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1))
+                 .serializeKeysWith(keySerializer())
+                .serializeValuesWith(valueSerializer())
+                .disableCachingNullValues();
         return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
 
     @Bean("_24HourCacheManager")
     public RedisCacheManager _24HourCacheManager() {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1*24)).disableCachingNullValues();
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1*24))
+                 .serializeKeysWith(keySerializer())
+                .serializeValuesWith(valueSerializer())
+                .disableCachingNullValues();
         return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
 
     @Bean("weekCacheManager")
     public RedisCacheManager weekCacheManager() {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(7)).disableCachingNullValues();
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(7))
+                 .serializeKeysWith(keySerializer())
+                .serializeValuesWith(valueSerializer())
+                .disableCachingNullValues();
         return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
 
 
     @Bean("monthCacheManager")
     public RedisCacheManager monthCacheManager() {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(30)).disableCachingNullValues();
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(30))
+                 .serializeKeysWith(keySerializer())
+                .serializeValuesWith(valueSerializer())
+                .disableCachingNullValues();
         return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
 }
