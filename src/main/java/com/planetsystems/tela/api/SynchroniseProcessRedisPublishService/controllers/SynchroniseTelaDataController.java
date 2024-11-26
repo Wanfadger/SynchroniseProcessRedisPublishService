@@ -2,18 +2,13 @@ package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.control
 
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SynchronizeSchoolDataDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SystemAppFeedBack;
-import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.cache.CacheKeys;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.publisher.SynchronizeMobileDataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/SynchroniseTelaData")
