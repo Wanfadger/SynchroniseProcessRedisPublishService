@@ -106,7 +106,7 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
 
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(e);
+           log.error(e.getMessage());
         }
 
 
@@ -139,47 +139,52 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
     @Override
     @Async
     public void publishSchoolClasses(SchoolDTO schoolDTO) throws JsonProcessingException {
-        MQResponseDto<List<ClassDTO>> listMQResponseDto = cacheService.cacheSchoolClasses(schoolDTO);
-//            jmsTemplate.convertAndSend(school.getTelaSchoolUID(), objectMapper.writeValueAsString(responseDto));
-        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-        log.info("CLASES PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+        List<ClassDTO> classDTOS = cacheService.cacheSchoolClasses(schoolDTO);
+        MQResponseDto<List<ClassDTO>> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.CLASSES);
+        responseDto.setData(classDTOS);
+        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+        log.info("CLASES PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), classDTOS.size());
 
     }
 
     @Override
     @Async
     public void publishSchoolStaffs(SchoolDTO schoolDTO) throws JsonProcessingException {
-
-        MQResponseDto<List<StaffDTO>> listMQResponseDto = cacheService.cacheSchoolStaffs(schoolDTO);
-//            jmsTemplate.convertAndSend(school.getTelaSchoolUID(), objectMapper.writeValueAsString(responseDto));
-        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-        log.info("STAFFS PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
-
-
+        List<StaffDTO> staffDTOList = cacheService.cacheSchoolStaffs(schoolDTO);
+        MQResponseDto<List<StaffDTO>> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.STAFFS);
+        responseDto.setData(staffDTOList);
+        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(staffDTOList));
+        log.info("STAFFS PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), staffDTOList.size());
     }
 
     @Override
     @Async
     public void publishSchoolClockIns(SchoolDTO schoolDTO, String dateParam) throws JsonProcessingException {
-        MQResponseDto<List<ClockInDTO>> listMQResponseDto = cacheService.cacheSchoolTermClockIns(schoolDTO);
+        List<ClockInDTO> clockInDTOS = cacheService.cacheSchoolTermClockIns(schoolDTO);
+        MQResponseDto<List<ClockInDTO>> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.CLOCKINS);
 
 
         if ("all".equalsIgnoreCase(dateParam)) {
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
+            responseDto.setData(clockInDTOS);
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
             System.out.println("school.getTelaSchoolUID() " +schoolDTO.getTelaSchoolNumber());
-            log.info("CLOCKINS PUBLISHED for {} {} {} ", schoolDTO.getTelaSchoolNumber(), schoolDTO.getName(), listMQResponseDto.getData().size());
+            log.info("CLOCKINS PUBLISHED for {} {} {} ", schoolDTO.getTelaSchoolNumber(), schoolDTO.getName(), clockInDTOS.size());
         } else {
 
             LocalDate localDate = LocalDate.parse(dateParam, TelaDatePattern.datePattern);
-            List<ClockInDTO> clockInDTOS = listMQResponseDto.getData().parallelStream().filter(clockInDTO -> {
+            List<ClockInDTO> localDateClockInDTOS = clockInDTOS.parallelStream().filter(clockInDTO -> {
                 LocalDateTime dateTime = LocalDateTime.parse(clockInDTO.getClockInDateTime(), TelaDatePattern.dateTimePattern24);
                 return dateTime.toLocalDate().equals(localDate);
             }).toList();
 
-            listMQResponseDto.setData(clockInDTOS);
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
+            responseDto.setData(localDateClockInDTOS);
+
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
             System.out.println("school.getTelaSchoolUID() " +schoolDTO.getTelaSchoolNumber());
-            log.info("CLOCKINS PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+            log.info("CLOCKINS PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), localDateClockInDTOS.size());
         }
 
 
@@ -188,18 +193,26 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
     @Override
     @Async
     public void publishSubjects(SchoolDTO schoolDTO) throws JsonProcessingException {
-        MQResponseDto<List<IdNameCodeDTO>> listMQResponseDto = cacheService.cacheSubjects(schoolDTO);
-        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-        log.info("Subjects PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+        List<IdNameCodeDTO> subjectDTOS = cacheService.cacheSubjects(schoolDTO);
+
+        MQResponseDto<List<IdNameCodeDTO>> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.SUBJECTS);
+        responseDto.setData(subjectDTOS);
+        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+        log.info("Subjects PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), subjectDTOS.size());
 
     }
 
     @Override
     @Async
     public void publishLearnerEnrollments(SchoolDTO schoolDTO) throws JsonProcessingException {
-        MQResponseDto<List<LearnerHeadCountDTO>> listMQResponseDto = cacheService.cacheLearnerEnrollments(schoolDTO);
-        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-        log.info("LEARNER_HEADCOUNTS PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+        List<LearnerHeadCountDTO> generalLearnerHeadCountDTOS = cacheService.cacheLearnerEnrollments(schoolDTO);
+
+        MQResponseDto<List<LearnerHeadCountDTO>> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.LEARNER_HEADCOUNTS);
+        responseDto.setData(generalLearnerHeadCountDTOS);
+        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+        log.info("LEARNER_HEADCOUNTS PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), generalLearnerHeadCountDTOS.size());
 
     }
 
@@ -207,39 +220,49 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
     @Async
     public void publishLearnerAttendance(SchoolDTO schoolDTO,  String dateParam) throws JsonProcessingException {
 
-        MQResponseDto<List<LearnerAttendanceDTO>> listMQResponseDto = cacheService.cacheLearnerAttendance(schoolDTO);
+        List<LearnerAttendanceDTO> generalLearnerAttendanceDTOS = cacheService.cacheLearnerAttendance(schoolDTO);
+
+        MQResponseDto<List<LearnerAttendanceDTO>> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.LEARNER_ATTENDANCES);
+
+
 
         if ("all".equalsIgnoreCase(dateParam) || dateParam == null) {
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-            log.info("publishLearnerAttendance PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+            responseDto.setData(generalLearnerAttendanceDTOS);
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+            log.info("publishLearnerAttendance PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(),generalLearnerAttendanceDTOS.size());
         } else {
-            List<LearnerAttendanceDTO> dateLearnerAttendances = listMQResponseDto.getData();
-            List<LearnerAttendanceDTO> learnerAttendanceDTOS = dateLearnerAttendances.parallelStream().filter(dto -> dto.getSubmissionDate().equals(dateParam)).toList();
-            listMQResponseDto.setData(learnerAttendanceDTOS);
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-            log.info("publishLearnerAttendance PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+            List<LearnerAttendanceDTO> dateLearnerAttendanceDTOS = generalLearnerAttendanceDTOS.parallelStream().filter(dto -> dto.getSubmissionDate().equals(dateParam)).toList();
+            responseDto.setData(dateLearnerAttendanceDTOS);
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+            log.info("publishLearnerAttendance PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(),dateLearnerAttendanceDTOS.size());
         }
     }
 
     @Override
     @Async
     public void publishStaffDailyTimeAttendanceSupervision(SchoolDTO schoolDTO, String dateParam) throws JsonProcessingException {
-        MQResponseDto<List<StaffDailyTimeAttendanceDTO>> listMQResponseDto = cacheService.cacheStaffDailyTimeAttendanceSupervision(schoolDTO, dateParam);
+        List<StaffDailyTimeAttendanceDTO> staffDailyTimeAttendanceDTOS = cacheService.cacheStaffDailyTimeAttendanceSupervision(schoolDTO, dateParam);
+
+        MQResponseDto<List<StaffDailyTimeAttendanceDTO>> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.STAFF_DAILY_TIME_ATTENDANCES);
+
 
         if ("all".equalsIgnoreCase(dateParam) || dateParam == null) {
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-            log.info("STAFF_DAILY_TIME_ATTENDANCES published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+            responseDto.setData(staffDailyTimeAttendanceDTOS);
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+            log.info("STAFF_DAILY_TIME_ATTENDANCES published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), staffDailyTimeAttendanceDTOS.size());
         } else {
             LocalDate localDate = LocalDate.parse(dateParam, TelaDatePattern.datePattern);
-            List<StaffDailyTimeAttendanceDTO> staffDailyTimeAttendanceDTOS = listMQResponseDto.getData().parallelStream().filter(dto -> {
+            List<StaffDailyTimeAttendanceDTO> dateStaffDailyTimeAttendanceDTOS = staffDailyTimeAttendanceDTOS.parallelStream().filter(dto -> {
                 LocalDateTime dateTime = LocalDateTime.parse(dto.getSupervisionDateTime(), TelaDatePattern.dateTimePattern24);
 
                 return dateTime.toLocalDate().equals(localDate);
             }).toList();
-            listMQResponseDto.setData(staffDailyTimeAttendanceDTOS);
+            responseDto.setData(dateStaffDailyTimeAttendanceDTOS);
 
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-            log.info("STAFF_DAILY_TIME_ATTENDANCES published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+            log.info("STAFF_DAILY_TIME_ATTENDANCES published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), dateStaffDailyTimeAttendanceDTOS.size());
         }
 
 
@@ -248,9 +271,14 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
     @Override
     @Async
     public void publishDistricts(SchoolDTO schoolDTO) throws JsonProcessingException {
-        MQResponseDto<List<DistrictDTO>> listMQResponseDto = cacheService.cacheDistricts();
-        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-        log.info("publishDistricts PUBLISHED for {} ", listMQResponseDto.getData().size());
+        List<DistrictDTO> districtDTOS = cacheService.cacheDistricts();
+
+        MQResponseDto<List<DistrictDTO>> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.DISTRICTS);
+        responseDto.setData(districtDTOS);
+
+        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+        log.info("publishDistricts PUBLISHED for {} ", districtDTOS.size());
     }
 
     @CacheEvict(value = CacheKeys.DISTRICTS)
@@ -262,25 +290,34 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
     @Override
     @Async
     public void publishSchoolTimetables(SchoolDTO schoolDTO) throws JsonProcessingException {
-        MQResponseDto<TimetableDTO> timetableDTOMQResponseDto = cacheService.cacheSchoolTimetables(schoolDTO);
-        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(timetableDTOMQResponseDto));
-        log.info("SCHOOL_TIMETABLE published for {} \n {} \n {}  ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), new TimetableDTO());
+        TimetableDTO timetableDTO = cacheService.cacheSchoolTimetables(schoolDTO);
+
+        MQResponseDto<TimetableDTO> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.SCHOOL_TIMETABLE);
+        responseDto.setData(timetableDTO);
+
+        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+        log.info("SCHOOL_TIMETABLE published for {} \n {} \n {}  ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), timetableDTO);
     }
 
     @Override
     @Async
     public void publishStaffDailyTimetables(SchoolDTO schoolDTO , String dateParam) throws JsonProcessingException {
-        MQResponseDto<List<StaffDailyTimetableDTO>> listMQResponseDto = cacheService.cacheStaffDailyTimetables(schoolDTO);
+        List<StaffDailyTimetableDTO> staffDailyTimetableDTOS = cacheService.cacheStaffDailyTimetables(schoolDTO);
+
+        MQResponseDto<List<StaffDailyTimetableDTO>> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.STAFF_DAILY_TIMETABLES);
+
 
         if ("all".equalsIgnoreCase(dateParam) || dateParam == null) {
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-            log.info("STAFF_DAILY_TIMETABLES published for {} \n {} \n {}  ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+            responseDto.setData(staffDailyTimetableDTOS);
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+            log.info("STAFF_DAILY_TIMETABLES published for {} \n {} \n {}  ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), staffDailyTimetableDTOS.size());
         } else {
-            List<StaffDailyTimetableDTO> staffDailyTimetableDTOS =
-                    listMQResponseDto.getData().parallelStream().filter(staffDailyTimetableDTO -> staffDailyTimetableDTO.getSubmissionDate().equals(dateParam)).toList();
-            listMQResponseDto.setData(staffDailyTimetableDTOS);
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-            log.info("STAFF_DAILY_TIMETABLES published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), staffDailyTimetableDTOS.size());
+            List<StaffDailyTimetableDTO> dateStaffDailyTimetableDTOS = staffDailyTimetableDTOS.parallelStream().filter(staffDailyTimetableDTO -> staffDailyTimetableDTO.getSubmissionDate().equals(dateParam)).toList();
+            responseDto.setData(dateStaffDailyTimetableDTOS);
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+            log.info("STAFF_DAILY_TIMETABLES published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), dateStaffDailyTimetableDTOS.size());
         }
 
 
@@ -290,21 +327,27 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
     @Async
     public void publishStaffDailyTimetableTaskSupervision(SchoolDTO schoolDTO, String dateParam) throws JsonProcessingException {
         log.info("publishStaffDailyTimetableTaskSupervision");
-        MQResponseDto<List<StaffDailyAttendanceTaskSupervisionDTO>> listMQResponseDto = cacheService.cacheStaffDailyTimetableTaskSupervision(schoolDTO, dateParam);
+        List<StaffDailyAttendanceTaskSupervisionDTO> staffDailyAttendanceTaskSupervisionDTOS = cacheService.cacheStaffDailyTimetableTaskSupervision(schoolDTO, dateParam);
+
+        MQResponseDto<List<StaffDailyAttendanceTaskSupervisionDTO>> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.STAFF_DAILY_TASK_SUPERVISIONS);
+        log.info("STAFF_DAILY_TASK_SUPERVISION published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), staffDailyAttendanceTaskSupervisionDTOS.size());
+
 
         if ("all".equalsIgnoreCase(dateParam) || dateParam == null) {
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-            log.info("STAFF_DAILY_TASK_SUPERVISION published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+            responseDto.setData(staffDailyAttendanceTaskSupervisionDTOS);
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+            log.info("STAFF_DAILY_TASK_SUPERVISION published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), staffDailyAttendanceTaskSupervisionDTOS.size());
         } else {
             LocalDate localDate = LocalDate.parse(dateParam, TelaDatePattern.datePattern);
-            List<StaffDailyAttendanceTaskSupervisionDTO> dailyAttendanceTaskSupervisionDTOS = listMQResponseDto.getData().parallelStream().filter(dto -> {
+            List<StaffDailyAttendanceTaskSupervisionDTO> dailyAttendanceTaskSupervisionDTOS = staffDailyAttendanceTaskSupervisionDTOS.parallelStream().filter(dto -> {
                 LocalDate parse = LocalDate.parse(dto.getSupervisionDate(), TelaDatePattern.datePattern);
                 return parse.equals(localDate);
             }).toList();
-            listMQResponseDto.setData(dailyAttendanceTaskSupervisionDTOS);
+            responseDto.setData(dailyAttendanceTaskSupervisionDTOS);
 
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-            log.info("STAFF_DAILY_TASK_SUPERVISION published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+            log.info("STAFF_DAILY_TASK_SUPERVISION published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), dailyAttendanceTaskSupervisionDTOS.size());
         }
 
     }
@@ -312,20 +355,26 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
     @Override
     @Async
     public void publishSchoolClockOuts(SchoolDTO schoolDTO , String dateParam) throws JsonProcessingException {
-        MQResponseDto<List<ClockOutDTO>> listMQResponseDto = cacheService.cacheSchoolTermClockOuts(schoolDTO);
+        List<ClockOutDTO> clockOutDTOS = cacheService.cacheSchoolTermClockOuts(schoolDTO);
+
+        MQResponseDto<List<ClockOutDTO>> responseDto = new MQResponseDto<>();
+        responseDto.setResponseType(ResponseType.CLOCKOUTS);
+
+
 
         if ("all".equalsIgnoreCase(dateParam)) {
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-            log.info("CLOCKOUTS PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+            responseDto.setData(clockOutDTOS);
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+            log.info("CLOCKOUTS PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), clockOutDTOS.size());
         } else {
             LocalDate localDate = LocalDate.parse(dateParam, TelaDatePattern.datePattern);
-            List<ClockOutDTO> dateClockOutDTOS = listMQResponseDto.getData().parallelStream().filter(clockOutDTO -> {
+            List<ClockOutDTO> dateClockOutDTOS = clockOutDTOS.parallelStream().filter(clockOutDTO -> {
                 LocalDateTime dateTime = LocalDateTime.parse(clockOutDTO.getClockOutDateTime(), TelaDatePattern.dateTimePattern24);
                 return dateTime.toLocalDate().equals(localDate);
             }).toList();
-            listMQResponseDto.setData(dateClockOutDTOS);
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(listMQResponseDto));
-            log.info("CLOCKOUTS PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), listMQResponseDto.getData().size());
+            responseDto.setData(dateClockOutDTOS);
+            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+            log.info("CLOCKOUTS PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), clockOutDTOS.size());
         }
     }
 
