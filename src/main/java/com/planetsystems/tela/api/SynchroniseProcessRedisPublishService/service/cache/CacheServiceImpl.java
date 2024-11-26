@@ -71,12 +71,10 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
     @Cacheable(value = CacheKeys.SCHOOL , key = "#telaSchoolNumber" , cacheManager = "halfHourCacheManager")
-    public SchoolDTO cacheSchoolData(String telaSchoolNumber) {
+    public SchoolDTO cacheSchoolData(String telaSchoolNumber , AcademicTermDTO academicTermDTO) {
        try {
            log.info("cacheSchoolData");
            School school = schoolRepository.byTelaNumberOrDeviceNumber(Status.DELETED , telaSchoolNumber , telaSchoolNumber).orElseThrow(() -> new TelaNotFoundException("School not found"));
-
-           AcademicTermDTO academicTermDTO = cacheActiveAcademicTerm();
 
            SchoolDTO schoolDTO = SchoolDTO.builder()
                    .id(school.getId())

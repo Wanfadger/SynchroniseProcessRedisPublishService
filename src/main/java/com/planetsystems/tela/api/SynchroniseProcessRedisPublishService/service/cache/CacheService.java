@@ -10,7 +10,7 @@ import java.util.List;
 public interface CacheService {
 
     AcademicTermDTO cacheActiveAcademicTerm();
-    SchoolDTO cacheSchoolData(String telaSchoolNumber);
+    SchoolDTO cacheSchoolData(String telaSchoolNumber ,  AcademicTermDTO academicTermDTO);
     List<ClassDTO> cacheSchoolClasses(SchoolDTO schoolDTO);
     List<StaffDTO> cacheSchoolStaffs(SchoolDTO schoolDTO);
     List<ClockInDTO> cacheSchoolTermClockIns(SchoolDTO schoolDTO);
