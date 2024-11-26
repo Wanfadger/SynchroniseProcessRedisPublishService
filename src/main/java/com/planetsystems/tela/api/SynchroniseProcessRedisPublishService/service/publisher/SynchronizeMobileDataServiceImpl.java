@@ -60,13 +60,16 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
 //        AcademicTerm academicTerm = academicTermRepository.activeAcademicTerm(Status.ACTIVE).orElseThrow(() -> new TelaNotFoundException("Active term not found"));
         // school information
         // school
-        SchoolDTO schoolDTO = cacheService.cacheSchoolData(dto.telaSchoolNumber());
+        AcademicTermDTO academicTermDTO = cacheService.cacheActiveAcademicTerm();
+        SchoolDTO schoolDTO = cacheService.cacheSchoolData(dto.telaSchoolNumber() ,academicTermDTO);
+
         try {
-            MQResponseDto<SchoolDTO> responseDto = new MQResponseDto<>();
-            responseDto.setResponseType(ResponseType.SCHOOL);
-            responseDto.setData(schoolDTO);
-            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
-            log.info("publishSchoolDatafor {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), responseDto);
+//            MQResponseDto<SchoolDTO> responseDto = new MQResponseDto<>();
+//            responseDto.setResponseType(ResponseType.SCHOOL);
+//            responseDto.setData(schoolDTO);
+//            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
+//            log.info("publishSchoolDatafor {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), responseDto);
+            publishSchoolData(schoolDTO);
 
 //                 classes
             publishSchoolClasses(schoolDTO);
@@ -119,8 +122,7 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
 
     @Override
     @Async
-    public void publishSchoolData(SynchronizeSchoolDataDTO dto) {
-        SchoolDTO schoolDTO = cacheService.cacheSchoolData(dto.telaSchoolNumber());
+    public void publishSchoolData(SchoolDTO schoolDTO) {
         try {
             MQResponseDto<SchoolDTO> responseDto = new MQResponseDto<>();
             responseDto.setResponseType(ResponseType.SCHOOL);
