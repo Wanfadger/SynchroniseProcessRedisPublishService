@@ -8,7 +8,10 @@ import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.time
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.TimetableDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.exception.TelaNotFoundException;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.*;
-import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.*;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.LearnerType;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.SchoolLevel;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.Status;
+import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.enums.SubjectClassification;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository.*;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository.projections.ClockInProjection;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.repository.projections.IdProjection;
@@ -16,7 +19,6 @@ import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.Co
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.TelaDatePattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +56,7 @@ public class CacheServiceImpl implements CacheService{
     @Override
     @Cacheable(value = CacheKeys.ACTIVE_ACADEMIC_TERM , cacheManager = "halfHourCacheManager")
     public AcademicTermDTO cacheActiveAcademicTerm() {
+        log.info("cacheActiveAcademicTerm");
         AcademicTerm academicTerm = academicTermRepository.activeAcademicTerm(Status.ACTIVE).orElseThrow(() -> new TelaNotFoundException("Active term not found"));
         AcademicTermDTO academicTermDTO = AcademicTermDTO.builder()
                 .id(academicTerm.getId())
@@ -70,6 +73,7 @@ public class CacheServiceImpl implements CacheService{
     @Cacheable(value = CacheKeys.SCHOOL , key = "#telaSchoolNumber" , cacheManager = "halfHourCacheManager")
     public SchoolDTO cacheSchoolData(String telaSchoolNumber) {
        try {
+           log.info("cacheSchoolData");
            School school = schoolRepository.byTelaNumberOrDeviceNumber(Status.DELETED , telaSchoolNumber , telaSchoolNumber).orElseThrow(() -> new TelaNotFoundException("School not found"));
 
            AcademicTermDTO academicTermDTO = cacheActiveAcademicTerm();
@@ -111,7 +115,8 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
     @Cacheable(value = CacheKeys.CLASSES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
-    public MQResponseDto<List<ClassDTO>> cacheSchoolClasses(SchoolDTO schoolDTO) {
+    public List<ClassDTO> cacheSchoolClasses(SchoolDTO schoolDTO) {
+        log.info("cacheSchoolClasses");
             List<ClassDTO> classDTOS = schoolClassRepository
                     .findAllByStatusNotAndAcademicTerm_IdAndSchool_Id(Status.DELETED, schoolDTO.getAcademicTerm().getId(), schoolDTO.getId())
                     .parallelStream().map(schoolClass -> {
@@ -159,11 +164,7 @@ public class CacheServiceImpl implements CacheService{
                         .collect(Collectors.toList());
 
             }
-
-            MQResponseDto<List<ClassDTO>> responseDto = new MQResponseDto<>();
-            responseDto.setResponseType(ResponseType.CLASSES);
-            responseDto.setData(classDTOS);
-            return responseDto;
+            return classDTOS;
     }
 
     private List<SchoolClass> generateDefaultClasses(SchoolLevel level) {
@@ -223,7 +224,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
     @Cacheable(value = CacheKeys.STAFFS , key = "#schoolDTO.telaSchoolNumber", cacheManager = "halfHourCacheManager")
-    public MQResponseDto<List<StaffDTO>> cacheSchoolStaffs(SchoolDTO schoolDTO) {
+    public List<StaffDTO> cacheSchoolStaffs(SchoolDTO schoolDTO) {
         List<StaffDTO> staffDTOList = schoolStaffRepository.findAllBySchoolWithSchool_StaffDetail(Status.DELETED, schoolDTO.getId())
                 .parallelStream()
                 .map(schoolStaff -> {
@@ -307,16 +308,13 @@ public class CacheServiceImpl implements CacheService{
                 })
                 .sorted(Comparator.comparing(StaffDTO::getFirstName))
                 .toList();
-        MQResponseDto<List<StaffDTO>> responseDto = new MQResponseDto<>();
-        responseDto.setResponseType(ResponseType.STAFFS);
-        responseDto.setData(staffDTOList);
-
-        return responseDto;
+        return staffDTOList;
     }
 
     @Override
     @Cacheable(value = CacheKeys.CLOCKINS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
-    public MQResponseDto<List<ClockInDTO>> cacheSchoolTermClockIns(SchoolDTO schoolDTO) {
+    public List<ClockInDTO> cacheSchoolTermClockIns(SchoolDTO schoolDTO) {
+        log.info("cacheSchoolTermClockIns");
         List<ClockInProjection> schoolDateClockIns = clockInRepository.nativeAllByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
 
 
@@ -341,16 +339,13 @@ public class CacheServiceImpl implements CacheService{
                 })
                 .sorted(Comparator.comparing(ClockInDTO::getClockInDateTime))
                 .toList();
-
-        MQResponseDto<List<ClockInDTO>> responseDto = new MQResponseDto<>();
-        responseDto.setResponseType(ResponseType.CLOCKINS);
-        responseDto.setData(clockInDTOS);
-        return responseDto;
+        return clockInDTOS;
     }
 
     @Override
     @Cacheable(value = CacheKeys.CLOCKOUTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
-    public MQResponseDto<List<ClockOutDTO>> cacheSchoolTermClockOuts(SchoolDTO schoolDTO) {
+    public List<ClockOutDTO> cacheSchoolTermClockOuts(SchoolDTO schoolDTO) {
+        log.info("cacheSchoolTermClockOuts");
         List<ClockOut> schoolClockOuts  = clockOutRepository.allByTerm_SchoolWithStaff(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
         List<ClockOutDTO> clockOutDTOS = schoolClockOuts.parallelStream().map(clockOut -> {
 
@@ -377,16 +372,13 @@ public class CacheServiceImpl implements CacheService{
                 .sorted(Comparator.comparing(ClockOutDTO::getClockOutDateTime))
                 .toList();
 
-        MQResponseDto<List<ClockOutDTO>> responseDto = new MQResponseDto<>();
-        responseDto.setResponseType(ResponseType.CLOCKOUTS);
-        responseDto.setData(clockOutDTOS);
-
-        return responseDto;
+        return clockOutDTOS;
     }
 
     @Override
     @Cacheable(value = CacheKeys.SUBJECTS, cacheManager = "halfHourCacheManager")
-    public MQResponseDto<List<IdNameCodeDTO>> cacheSubjects(SchoolDTO schoolDTO) {
+    public List<IdNameCodeDTO> cacheSubjects(SchoolDTO schoolDTO) {
+        log.info("cacheSubjects");
 
         SchoolLevel schoolLevel = SchoolLevel.getSchoolLevel(schoolDTO.getSchoolLevel());
         SubjectClassification subjectClassification = SubjectClassification.getSubjectClassification(schoolLevel.getLevel());
@@ -394,16 +386,13 @@ public class CacheServiceImpl implements CacheService{
                 .parallelStream().map(subject -> new IdNameCodeDTO(subject.getId(), subject.getName(), subject.getCode()))
                 .sorted(Comparator.comparing(IdNameCodeDTO::code))
                 .toList();
-
-        MQResponseDto<List<IdNameCodeDTO>> responseDto = new MQResponseDto<>();
-        responseDto.setResponseType(ResponseType.SUBJECTS);
-        responseDto.setData(subjectDTOS);
-        return responseDto;
+        return subjectDTOS;
     }
 
     @Override
     @Cacheable(value = CacheKeys.LEARNER_HEADCOUNTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
-    public MQResponseDto<List<LearnerHeadCountDTO>> cacheLearnerEnrollments(SchoolDTO schoolDTO) {
+    public List<LearnerHeadCountDTO> cacheLearnerEnrollments(SchoolDTO schoolDTO) {
+        log.info("cacheLearnerEnrollments");
         List<LearnerHeadCountDTO> generalLearnerHeadCountDTOS = learnerEnrollmentRepository.allBySchool_term(schoolDTO.getId(), schoolDTO.getAcademicTerm().getId()).parallelStream()
                 .map(enrollment -> {
                     LearnerHeadCountDTO learnerHeadCountDTO = LearnerHeadCountDTO.builder()
@@ -433,16 +422,13 @@ public class CacheServiceImpl implements CacheService{
                 }).toList();
         generalLearnerHeadCountDTOS.addAll(snLearnerHeadCountDTOS);
 
-        MQResponseDto<List<LearnerHeadCountDTO>> responseDto = new MQResponseDto<>();
-        responseDto.setResponseType(ResponseType.LEARNER_HEADCOUNTS);
-        responseDto.setData(generalLearnerHeadCountDTOS);
-        return responseDto;
+        return generalLearnerHeadCountDTOS;
     }
 
     @Override
     @Cacheable(value = CacheKeys.LEARNER_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "halfHourCacheManager")
-    public  MQResponseDto<List<LearnerAttendanceDTO>> cacheLearnerAttendance(SchoolDTO schoolDTO) {
-        log.info("publishLearnerAttendance");
+    public  List<LearnerAttendanceDTO> cacheLearnerAttendance(SchoolDTO schoolDTO) {
+        log.info("cacheLearnerAttendance");
         List<LearnerAttendance> learnerAttendanceList = learnerAttendanceRepository.allByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
         List<SNLearnerAttendance> snLearnerAttendanceList = snLearnerAttendanceRepository.allByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
 
@@ -480,19 +466,14 @@ public class CacheServiceImpl implements CacheService{
 
         generalLearnerAttendanceDTOS.addAll(snLearnerAttendanceDTOS);
 
-
-        MQResponseDto<List<LearnerAttendanceDTO>> responseDto = new MQResponseDto<>();
-        responseDto.setResponseType(ResponseType.LEARNER_ATTENDANCES);
-        responseDto.setData(generalLearnerAttendanceDTOS);
-
-        return responseDto;
+        return generalLearnerAttendanceDTOS;
 
     }
 
     @Override
     @Cacheable(value = CacheKeys.STAFF_DAILY_TIME_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
-    public MQResponseDto<List<StaffDailyTimeAttendanceDTO>> cacheStaffDailyTimeAttendanceSupervision(SchoolDTO schoolDTO, String dateParam) {
-
+    public List<StaffDailyTimeAttendanceDTO> cacheStaffDailyTimeAttendanceSupervision(SchoolDTO schoolDTO, String dateParam) {
+        log.info("cacheStaffDailyTimeAttendanceSupervision");
         List<StaffDailyAttendanceSupervision> staffDailyAttendanceSupervisions = staffDailyAttendanceSupervisionRepository
                 .allByTermDates_School(LocalDate.parse(schoolDTO.getAcademicTerm().getStartDate() , TelaDatePattern.datePattern), LocalDate.parse(schoolDTO.getAcademicTerm().getEndDate() , TelaDatePattern.datePattern)
                         , schoolDTO.getId());
@@ -513,16 +494,13 @@ public class CacheServiceImpl implements CacheService{
             return staffDailyTimeAttendanceDTO;
         }).sorted(Comparator.comparing(StaffDailyTimeAttendanceDTO::getSupervisionDateTime)).toList();
 
-
-        MQResponseDto<List<StaffDailyTimeAttendanceDTO>> responseDto = new MQResponseDto<>();
-        responseDto.setResponseType(ResponseType.STAFF_DAILY_TIME_ATTENDANCES);
-        responseDto.setData(staffDailyTimeAttendanceDTOS);
-        return  responseDto;
+        return  staffDailyTimeAttendanceDTOS;
     }
 
     @Override
     @Cacheable(value = CacheKeys.STAFF_DAILY_TASK_SUPERVISIONS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
-    public MQResponseDto<List<StaffDailyAttendanceTaskSupervisionDTO>> cacheStaffDailyTimetableTaskSupervision(SchoolDTO schoolDTO , String dateParam) {
+    public List<StaffDailyAttendanceTaskSupervisionDTO> cacheStaffDailyTimetableTaskSupervision(SchoolDTO schoolDTO , String dateParam) {
+        log.info("cacheStaffDailyTimetableTaskSupervision");
         LocalDate startDate = LocalDate.parse(schoolDTO.getAcademicTerm().getStartDate(), TelaDatePattern.datePattern);
         LocalDate endDate = LocalDate.parse(schoolDTO.getAcademicTerm().getEndDate(), TelaDatePattern.datePattern);
 
@@ -551,19 +529,13 @@ public class CacheServiceImpl implements CacheService{
                 ).sorted(Comparator.comparing(StaffDailyAttendanceTaskSupervisionDTO::getSupervisionDate))
                 .toList();
 
-
-
-        MQResponseDto<List<StaffDailyAttendanceTaskSupervisionDTO>> responseDto = new MQResponseDto<>();
-        responseDto.setResponseType(ResponseType.STAFF_DAILY_TASK_SUPERVISIONS);
-        responseDto.setData(staffDailyAttendanceTaskSupervisionDTOS);
-        log.info("STAFF_DAILY_TASK_SUPERVISION published for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), staffDailyAttendanceTaskSupervisionDTOS.size());
-
-        return responseDto;
+        return staffDailyAttendanceTaskSupervisionDTOS;
     }
 
     @Override
     @Cacheable(value = CacheKeys.STAFF_DAILY_TIMETABLES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
-    public MQResponseDto<List<StaffDailyTimetableDTO>> cacheStaffDailyTimetables(SchoolDTO schoolDTO) {
+    public List<StaffDailyTimetableDTO> cacheStaffDailyTimetables(SchoolDTO schoolDTO) {
+        log.info("cacheStaffDailyTimetables");
 
         List<StaffDailyTimeTable> termStaffDailyTimeTables = staffDailyTimeTableRepository.allByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
         List<StaffDailyTimeTableLesson> termStaffDailyTimeTableLessons = staffDailyTimeTableLessonRepository.allIn(termStaffDailyTimeTables);
@@ -587,36 +559,28 @@ public class CacheServiceImpl implements CacheService{
                 })
         ).sorted(Comparator.comparing(StaffDailyTimetableDTO::getStaffId)).toList();
 
-
-        MQResponseDto<List<StaffDailyTimetableDTO>> responseDto = new MQResponseDto<>();
-        responseDto.setResponseType(ResponseType.STAFF_DAILY_TIMETABLES);
-        responseDto.setData(staffDailyTimetableDTOS);
-
-        return responseDto;
+        return staffDailyTimetableDTOS;
 
     }
 
     @Override
     @Cacheable(value = CacheKeys.DISTRICTS, cacheManager = "halfHourCacheManager")
-    public MQResponseDto<List<DistrictDTO>> cacheDistricts() {
+    public List<DistrictDTO> cacheDistricts() {
+        log.info("cacheDistricts");
         List<DistrictDTO> districtDTOS = districtRepository.findAllByStatusNot(Status.DELETED)
                 .parallelStream()
                 .map(district -> new DistrictDTO(district.getId(), district.getName(), district.getRegion().getName()))
                 .sorted(Comparator.comparing(DistrictDTO::name))
                 .toList();
-
-        MQResponseDto<List<DistrictDTO>> responseDto = new MQResponseDto<>();
-        responseDto.setResponseType(ResponseType.DISTRICTS);
-        responseDto.setData(districtDTOS);
-
-        return responseDto;
+        return districtDTOS;
     }
 
 
 
     @Override
     @Cacheable(value = CacheKeys.SCHOOL_TIMETABLE , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "halfHourCacheManager")
-    public MQResponseDto<TimetableDTO> cacheSchoolTimetables(SchoolDTO schoolDTO) {
+    public TimetableDTO cacheSchoolTimetables(SchoolDTO schoolDTO) {
+        log.info("cacheSchoolTimetables");
         Optional<IdProjection> idProjectionOptional = timeTableRepository.findBySchool_IdAndAcademicTerm_Id(schoolDTO.getId(), schoolDTO.getAcademicTerm().getId());
 
 //                .orElseThrow(() -> new TelaNotFoundException(school.getName() + "Timetable not found from " + academicTerm.getTerm()));
@@ -671,19 +635,9 @@ public class CacheServiceImpl implements CacheService{
             }).toList();
 
             timetableDTO.setClassTimetables(classTimetableDTOS);
-
-            MQResponseDto<TimetableDTO> responseDto = new MQResponseDto<>();
-            responseDto.setResponseType(ResponseType.SCHOOL_TIMETABLE);
-            responseDto.setData(timetableDTO);
-
-            return responseDto;
+            return timetableDTO;
         } else {
-            MQResponseDto<TimetableDTO> responseDto = new MQResponseDto<>();
-            responseDto.setResponseType(ResponseType.SCHOOL_TIMETABLE);
-            responseDto.setData(new TimetableDTO());
-
-            return responseDto;
-
+            return new TimetableDTO();
         }
 
     }
