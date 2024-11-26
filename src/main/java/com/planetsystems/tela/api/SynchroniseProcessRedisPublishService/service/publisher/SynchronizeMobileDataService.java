@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface SynchronizeMobileDataService {
     ResponseEntity<SystemAppFeedBack<Boolean>> synchronizeSchoolData(SynchronizeSchoolDataDTO dto);
-    void publishSchoolData(SynchronizeSchoolDataDTO dto);
+    void publishSchoolData(SchoolDTO schoolDTO);
     void publishSchoolClasses(SchoolDTO schoolDTO) throws JsonProcessingException;
     void publishSchoolStaffs(SchoolDTO schoolDTO) throws JsonProcessingException;
     void publishSchoolClockIns(SchoolDTO schoolDTO, String dateParam) throws JsonProcessingException;
