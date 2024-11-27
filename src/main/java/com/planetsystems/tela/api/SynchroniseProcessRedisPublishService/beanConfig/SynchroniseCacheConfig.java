@@ -9,7 +9,6 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -29,35 +28,34 @@ public class SynchroniseCacheConfig {
     @Bean
     public JedisConnectionFactory jedisConnectionFactory(){
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
-        JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(config);
-        return jedisConnectionFactory;
+        return new JedisConnectionFactory(config);
     }
 
     @Bean
     public RedisTemplate< String , Object> redisTemplate(JedisConnectionFactory redisConnectionFactory){
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-        GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer();
+        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new  Jackson2JsonRedisSerializer<>(Object.class);
         RedisTemplate< String , Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setEnableTransactionSupport(true);
 
         redisTemplate.setKeySerializer(stringRedisSerializer);
-        redisTemplate.setValueSerializer(genericJackson2JsonRedisSerializer);
+        redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
 
         redisTemplate.setHashKeySerializer(stringRedisSerializer);
-        redisTemplate.setHashValueSerializer(genericJackson2JsonRedisSerializer);
+        redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);
 
         return redisTemplate;
     }
 
 
     @Bean
-    RedisSerializationContext.SerializationPair<String> keySerializer(){
+    RedisSerializationContext.SerializationPair<String> cacheManagerKeySerializer(){
         return RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer());
     }
 
     @Bean
-    RedisSerializationContext.SerializationPair<Object> valueSerializer(){
+    RedisSerializationContext.SerializationPair<Object> cacheManagerValueSerializer(){
         return RedisSerializationContext.SerializationPair.fromSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
     }
 
@@ -72,8 +70,8 @@ public class SynchroniseCacheConfig {
     @Bean("halfHourCacheManager")
     public RedisCacheManager halfHourCacheManager() {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(keySerializer())
-                .serializeValuesWith(valueSerializer())
+                .serializeKeysWith(cacheManagerKeySerializer())
+                .serializeValuesWith(cacheManagerValueSerializer())
                 .entryTtl(Duration.ofMinutes(30)).disableCachingNullValues();
         return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
@@ -81,17 +79,17 @@ public class SynchroniseCacheConfig {
     @Bean("hourCacheManager")
     public RedisCacheManager hourCacheManager() {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1))
-                 .serializeKeysWith(keySerializer())
-                .serializeValuesWith(valueSerializer())
+                 .serializeKeysWith(cacheManagerKeySerializer())
+                .serializeValuesWith(cacheManagerValueSerializer())
                 .disableCachingNullValues();
         return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
 
     @Bean("_24HourCacheManager")
     public RedisCacheManager _24HourCacheManager() {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1*24))
-                 .serializeKeysWith(keySerializer())
-                .serializeValuesWith(valueSerializer())
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(24))
+                 .serializeKeysWith(cacheManagerKeySerializer())
+                .serializeValuesWith(cacheManagerValueSerializer())
                 .disableCachingNullValues();
         return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
@@ -99,8 +97,8 @@ public class SynchroniseCacheConfig {
     @Bean("weekCacheManager")
     public RedisCacheManager weekCacheManager() {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(7))
-                 .serializeKeysWith(keySerializer())
-                .serializeValuesWith(valueSerializer())
+                 .serializeKeysWith(cacheManagerKeySerializer())
+                .serializeValuesWith(cacheManagerValueSerializer())
                 .disableCachingNullValues();
         return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
@@ -109,8 +107,8 @@ public class SynchroniseCacheConfig {
     @Bean("monthCacheManager")
     public RedisCacheManager monthCacheManager() {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(30))
-                 .serializeKeysWith(keySerializer())
-                .serializeValuesWith(valueSerializer())
+                 .serializeKeysWith(cacheManagerKeySerializer())
+                .serializeValuesWith(cacheManagerValueSerializer())
                 .disableCachingNullValues();
         return RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(config).build();
     }
