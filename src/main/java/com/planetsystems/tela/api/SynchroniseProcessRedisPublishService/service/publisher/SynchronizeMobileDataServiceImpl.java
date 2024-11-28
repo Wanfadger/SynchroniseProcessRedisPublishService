@@ -162,7 +162,7 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
         MQResponseDto<List<StaffDTO>> responseDto = new MQResponseDto<>();
         responseDto.setResponseType(ResponseType.STAFFS);
         responseDto.setData(staffDTOList);
-        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(staffDTOList));
+        queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
         log.info("STAFFS PUBLISHED for {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), staffDTOList.size());
     }
 
