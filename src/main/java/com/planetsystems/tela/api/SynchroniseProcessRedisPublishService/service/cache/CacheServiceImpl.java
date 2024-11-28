@@ -1,5 +1,7 @@
 package com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.service.cache;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.*;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.supervision.StaffDailyAttendanceTaskSupervisionDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.timetable.ClassTimetableDTO;
@@ -19,9 +21,9 @@ import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.Co
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.utils.TelaDatePattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -52,11 +54,24 @@ public class CacheServiceImpl implements CacheService{
     final StaffDailyAttendanceSupervisionRepository staffDailyAttendanceSupervisionRepository;
     final StaffDailyAttendanceTaskSupervisionRepository staffDailyAttendanceTaskSupervisionRepository;
 
+    final RedisTemplate redisTemplate;
+    final ObjectMapper objectMapper;
+
 
     @Override
-    @Cacheable(value = CacheKeys.ACTIVE_ACADEMIC_TERM , cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.ACTIVE_ACADEMIC_TERM , cacheManager = "monthCacheManager")
     public AcademicTermDTO cacheActiveAcademicTerm() {
-        log.info("cacheActiveAcademicTerm");
+
+        final String cacheKey = CacheKeys.ACTIVE_ACADEMIC_TERM;
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+//        log.info("terms {} " , optionalCache.get());
+        if (optionalCache.isPresent()) {
+            AcademicTermDTO academicTermDTO = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return academicTermDTO;
+        }
+
+
         AcademicTerm academicTerm = academicTermRepository.activeAcademicTerm(Status.ACTIVE).orElseThrow(() -> new TelaNotFoundException("Active term not found"));
         AcademicTermDTO academicTermDTO = AcademicTermDTO.builder()
                 .id(academicTerm.getId())
@@ -65,15 +80,26 @@ public class CacheServiceImpl implements CacheService{
                 .startDate(academicTerm.getStartDate().format(TelaDatePattern.datePattern))
                 .endDate(academicTerm.getEndDate().format(TelaDatePattern.datePattern))
                 .build();
+
+        redisTemplate.opsForValue().set(cacheKey , academicTermDTO , Duration.ofDays(30));
         return academicTermDTO;
     }
 
 
     @Override
-    @Cacheable(value = CacheKeys.SCHOOL , key = "#telaSchoolNumber" , cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.SCHOOL , key = "#telaSchoolNumber" , cacheManager = "halfHourCacheManager")
     public SchoolDTO cacheSchoolData(String telaSchoolNumber , AcademicTermDTO academicTermDTO) {
        try {
-           log.info("cacheSchoolData");
+          final String cacheKey = CacheKeys.SCHOOL+"::"+telaSchoolNumber;
+
+           Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+           if (optionalCache.isPresent()) {
+               SchoolDTO schoolDTO = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+               return schoolDTO;
+           }
+
+
            School school = schoolRepository.byTelaNumberOrDeviceNumber(Status.DELETED , telaSchoolNumber , telaSchoolNumber).orElseThrow(() -> new TelaNotFoundException("School not found"));
 
            SchoolDTO schoolDTO = SchoolDTO.builder()
@@ -104,6 +130,7 @@ public class CacheServiceImpl implements CacheService{
            }
 
 
+           redisTemplate.opsForValue().set(cacheKey , schoolDTO , Duration.ofDays(30));
            return schoolDTO;
        }catch (Exception e){
            e.printStackTrace();
@@ -112,9 +139,19 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.CLASSES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.CLASSES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public List<ClassDTO> cacheSchoolClasses(SchoolDTO schoolDTO) {
-        log.info("cacheSchoolClasses");
+
+       final String cacheKey = CacheKeys.CLASSES+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            List<ClassDTO> cacheClassDTOS = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return cacheClassDTOS;
+        }
+
+
             List<ClassDTO> classDTOS = schoolClassRepository
                     .findAllByStatusNotAndAcademicTerm_IdAndSchool_Id(Status.DELETED, schoolDTO.getAcademicTerm().getId(), schoolDTO.getId())
                     .parallelStream().map(schoolClass -> {
@@ -162,6 +199,8 @@ public class CacheServiceImpl implements CacheService{
                         .collect(Collectors.toList());
 
             }
+
+        redisTemplate.opsForValue().set(cacheKey , classDTOS , Duration.ofDays(30));
             return classDTOS;
     }
 
@@ -221,8 +260,18 @@ public class CacheServiceImpl implements CacheService{
     }
 
     @Override
-    @Cacheable(value = CacheKeys.STAFFS , key = "#schoolDTO.telaSchoolNumber", cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.STAFFS , key = "#schoolDTO.telaSchoolNumber", cacheManager = "halfHourCacheManager")
     public List<StaffDTO> cacheSchoolStaffs(SchoolDTO schoolDTO) {
+        final String cacheKey = CacheKeys.STAFFS+"::"+"school="+schoolDTO.getTelaSchoolNumber();
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            List<StaffDTO> staffDTOList = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return staffDTOList;
+        }
+
+
         List<StaffDTO> staffDTOList = schoolStaffRepository.findAllBySchoolWithSchool_StaffDetail(Status.DELETED, schoolDTO.getId())
                 .parallelStream()
                 .map(schoolStaff -> {
@@ -306,18 +355,28 @@ public class CacheServiceImpl implements CacheService{
                 })
                 .sorted(Comparator.comparing(StaffDTO::getFirstName))
                 .toList();
+
+        redisTemplate.opsForValue().set(cacheKey , staffDTOList , Duration.ofDays(30));
         return staffDTOList;
     }
 
     @Override
-    @Cacheable(value = CacheKeys.CLOCKINS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.CLOCKINS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public List<ClockInDTO> cacheSchoolTermClockIns(SchoolDTO schoolDTO) {
-        log.info("cacheSchoolTermClockIns");
-        List<ClockInProjection> schoolDateClockIns = clockInRepository.nativeAllByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
+
+        final String cacheKey = CacheKeys.CLOCKINS+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            List<ClockInDTO> clockInDTOS = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return clockInDTOS;
+        }
 
 
-        System.out.println("schoolDateClockIns " + schoolDateClockIns.size());
-        List<ClockInDTO> clockInDTOS = schoolDateClockIns.parallelStream().map(clockIn -> {
+        List<ClockInProjection> schoolTermClockIns = clockInRepository.nativeAllByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
+
+        List<ClockInDTO> clockInDTOS = schoolTermClockIns.parallelStream().map(clockIn -> {
 
                     LocalDateTime clockInDateTime = LocalDateTime.of(clockIn.getClockInDate(), clockIn.getClockInTime());
 
@@ -337,13 +396,26 @@ public class CacheServiceImpl implements CacheService{
                 })
                 .sorted(Comparator.comparing(ClockInDTO::getClockInDateTime))
                 .toList();
+
+        redisTemplate.opsForValue().set(cacheKey , clockInDTOS , Duration.ofDays(7));
         return clockInDTOS;
     }
 
     @Override
-    @Cacheable(value = CacheKeys.CLOCKOUTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.CLOCKOUTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public List<ClockOutDTO> cacheSchoolTermClockOuts(SchoolDTO schoolDTO) {
-        log.info("cacheSchoolTermClockOuts");
+
+        final String cacheKey = CacheKeys.CLOCKOUTS+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            log.info("cacheSchoolTermClockOuts {} " , optionalCache.get());
+            List<ClockOutDTO> clockOutDTOS = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return clockOutDTOS;
+        }
+
+
         List<ClockOut> schoolClockOuts  = clockOutRepository.allByTerm_SchoolWithStaff(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
         List<ClockOutDTO> clockOutDTOS = schoolClockOuts.parallelStream().map(clockOut -> {
 
@@ -369,14 +441,22 @@ public class CacheServiceImpl implements CacheService{
                 })
                 .sorted(Comparator.comparing(ClockOutDTO::getClockOutDateTime))
                 .toList();
-
+        redisTemplate.opsForValue().set(cacheKey , clockOutDTOS , Duration.ofDays(7));
         return clockOutDTOS;
     }
 
     @Override
-    @Cacheable(value = CacheKeys.SUBJECTS, cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.SUBJECTS , key = "{'term='+#schoolDTO.academicTerm.id}",cacheManager = "halfHourCacheManager")
     public List<IdNameCodeDTO> cacheSubjects(SchoolDTO schoolDTO) {
-        log.info("cacheSubjects");
+        final String cacheKey = CacheKeys.SUBJECTS;
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            log.info("cacheSubjects {} " , optionalCache.get());
+            List<IdNameCodeDTO> subjectDTOS = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return subjectDTOS;
+        }
 
         SchoolLevel schoolLevel = SchoolLevel.getSchoolLevel(schoolDTO.getSchoolLevel());
         SubjectClassification subjectClassification = SubjectClassification.getSubjectClassification(schoolLevel.getLevel());
@@ -384,13 +464,27 @@ public class CacheServiceImpl implements CacheService{
                 .parallelStream().map(subject -> new IdNameCodeDTO(subject.getId(), subject.getName(), subject.getCode()))
                 .sorted(Comparator.comparing(IdNameCodeDTO::code))
                 .toList();
+
+        redisTemplate.opsForValue().set(cacheKey , subjectDTOS , Duration.ofDays(30));
         return subjectDTOS;
     }
 
+
+
     @Override
-    @Cacheable(value = CacheKeys.LEARNER_HEADCOUNTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.LEARNER_HEADCOUNTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public List<LearnerHeadCountDTO> cacheLearnerEnrollments(SchoolDTO schoolDTO) {
-        log.info("cacheLearnerEnrollments");
+        final String cacheKey = CacheKeys.LEARNER_HEADCOUNTS+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            log.info("cacheLearnerEnrollments {} " , optionalCache.get());
+            List<LearnerHeadCountDTO> generalLearnerHeadCountDTOS = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return generalLearnerHeadCountDTOS;
+        }
+
+
         List<LearnerHeadCountDTO> generalLearnerHeadCountDTOS = learnerEnrollmentRepository.allBySchool_term(schoolDTO.getId(), schoolDTO.getAcademicTerm().getId()).parallelStream()
                 .map(enrollment -> {
                     LearnerHeadCountDTO learnerHeadCountDTO = LearnerHeadCountDTO.builder()
@@ -419,14 +513,23 @@ public class CacheServiceImpl implements CacheService{
                     return learnerHeadCountDTO;
                 }).toList();
         generalLearnerHeadCountDTOS.addAll(snLearnerHeadCountDTOS);
-
+        redisTemplate.opsForValue().set(cacheKey , generalLearnerHeadCountDTOS , Duration.ofDays(30));
         return generalLearnerHeadCountDTOS;
     }
 
     @Override
-    @Cacheable(value = CacheKeys.LEARNER_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.LEARNER_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "halfHourCacheManager")
     public  List<LearnerAttendanceDTO> cacheLearnerAttendance(SchoolDTO schoolDTO) {
-        log.info("cacheLearnerAttendance");
+        final String cacheKey = CacheKeys.LEARNER_ATTENDANCES+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            log.info("cacheLearnerAttendance {} " , optionalCache.get());
+            List<LearnerAttendanceDTO> generalLearnerAttendanceDTOS = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return generalLearnerAttendanceDTOS;
+        }
+
         List<LearnerAttendance> learnerAttendanceList = learnerAttendanceRepository.allByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
         List<SNLearnerAttendance> snLearnerAttendanceList = snLearnerAttendanceRepository.allByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
 
@@ -463,15 +566,25 @@ public class CacheServiceImpl implements CacheService{
                 .toList();
 
         generalLearnerAttendanceDTOS.addAll(snLearnerAttendanceDTOS);
-
+        redisTemplate.opsForValue().set(cacheKey , generalLearnerAttendanceDTOS , Duration.ofDays(30));
         return generalLearnerAttendanceDTOS;
 
     }
 
     @Override
-    @Cacheable(value = CacheKeys.STAFF_DAILY_TIME_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.STAFF_DAILY_TIME_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public List<StaffDailyTimeAttendanceDTO> cacheStaffDailyTimeAttendanceSupervision(SchoolDTO schoolDTO, String dateParam) {
-        log.info("cacheStaffDailyTimeAttendanceSupervision");
+        final String cacheKey = CacheKeys.STAFF_DAILY_TIME_ATTENDANCES+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            log.info("cacheStaffDailyTimeAttendanceSupervision {} " , optionalCache.get());
+            List<StaffDailyTimeAttendanceDTO> staffDailyTimeAttendanceDTOS = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return staffDailyTimeAttendanceDTOS;
+        }
+
+
         List<StaffDailyAttendanceSupervision> staffDailyAttendanceSupervisions = staffDailyAttendanceSupervisionRepository
                 .allByTermDates_School(LocalDate.parse(schoolDTO.getAcademicTerm().getStartDate() , TelaDatePattern.datePattern), LocalDate.parse(schoolDTO.getAcademicTerm().getEndDate() , TelaDatePattern.datePattern)
                         , schoolDTO.getId());
@@ -492,13 +605,23 @@ public class CacheServiceImpl implements CacheService{
             return staffDailyTimeAttendanceDTO;
         }).sorted(Comparator.comparing(StaffDailyTimeAttendanceDTO::getSupervisionDateTime)).toList();
 
+        redisTemplate.opsForValue().set(cacheKey , staffDailyTimeAttendanceDTOS , Duration.ofDays(30));
         return  staffDailyTimeAttendanceDTOS;
     }
 
     @Override
-    @Cacheable(value = CacheKeys.STAFF_DAILY_TASK_SUPERVISIONS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.STAFF_DAILY_TASK_SUPERVISIONS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public List<StaffDailyAttendanceTaskSupervisionDTO> cacheStaffDailyTimetableTaskSupervision(SchoolDTO schoolDTO , String dateParam) {
-        log.info("cacheStaffDailyTimetableTaskSupervision");
+        final String cacheKey = CacheKeys.STAFF_DAILY_TASK_SUPERVISIONS+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            log.info("cacheStaffDailyTimetableTaskSupervision {} " , optionalCache.get());
+            List<StaffDailyAttendanceTaskSupervisionDTO> staffDailyAttendanceTaskSupervisionDTOS = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return staffDailyAttendanceTaskSupervisionDTOS;
+        }
+
         LocalDate startDate = LocalDate.parse(schoolDTO.getAcademicTerm().getStartDate(), TelaDatePattern.datePattern);
         LocalDate endDate = LocalDate.parse(schoolDTO.getAcademicTerm().getEndDate(), TelaDatePattern.datePattern);
 
@@ -526,14 +649,22 @@ public class CacheServiceImpl implements CacheService{
                         })
                 ).sorted(Comparator.comparing(StaffDailyAttendanceTaskSupervisionDTO::getSupervisionDate))
                 .toList();
-
+        redisTemplate.opsForValue().set(cacheKey , staffDailyAttendanceTaskSupervisionDTOS , Duration.ofDays(30));
         return staffDailyAttendanceTaskSupervisionDTOS;
     }
 
     @Override
-    @Cacheable(value = CacheKeys.STAFF_DAILY_TIMETABLES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.STAFF_DAILY_TIMETABLES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
     public List<StaffDailyTimetableDTO> cacheStaffDailyTimetables(SchoolDTO schoolDTO) {
-        log.info("cacheStaffDailyTimetables");
+        final String cacheKey = CacheKeys.STAFF_DAILY_TIMETABLES+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            log.info("cacheStaffDailyTimetables {} " , optionalCache.get());
+            List<StaffDailyTimetableDTO> staffDailyTimetableDTOS = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return staffDailyTimetableDTOS;
+        }
 
         List<StaffDailyTimeTable> termStaffDailyTimeTables = staffDailyTimeTableRepository.allByTerm_School(schoolDTO.getAcademicTerm().getId(), schoolDTO.getId());
         List<StaffDailyTimeTableLesson> termStaffDailyTimeTableLessons = staffDailyTimeTableLessonRepository.allIn(termStaffDailyTimeTables);
@@ -556,29 +687,50 @@ public class CacheServiceImpl implements CacheService{
                     return dto;
                 })
         ).sorted(Comparator.comparing(StaffDailyTimetableDTO::getStaffId)).toList();
-
+        redisTemplate.opsForValue().set(cacheKey , staffDailyTimetableDTOS , Duration.ofDays(30));
         return staffDailyTimetableDTOS;
 
     }
 
     @Override
-    @Cacheable(value = CacheKeys.DISTRICTS, cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.DISTRICTS, cacheManager = "halfHourCacheManager")
     public List<DistrictDTO> cacheDistricts() {
-        log.info("cacheDistricts");
+        final String cacheKey = CacheKeys.DISTRICTS;
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            log.info("cacheDistricts {} " , optionalCache.get());
+            List<DistrictDTO> districtDTOS = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return districtDTOS;
+        }
+
         List<DistrictDTO> districtDTOS = districtRepository.findAllByStatusNot(Status.DELETED)
                 .parallelStream()
                 .map(district -> new DistrictDTO(district.getId(), district.getName(), district.getRegion().getName()))
                 .sorted(Comparator.comparing(DistrictDTO::name))
                 .toList();
+
+        redisTemplate.opsForValue().set(cacheKey , districtDTOS , Duration.ofDays(30));
         return districtDTOS;
     }
 
 
 
     @Override
-    @Cacheable(value = CacheKeys.SCHOOL_TIMETABLE , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "halfHourCacheManager")
+//    @Cacheable(value = CacheKeys.SCHOOL_TIMETABLE , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "halfHourCacheManager")
     public TimetableDTO cacheSchoolTimetables(SchoolDTO schoolDTO) {
-        log.info("cacheSchoolTimetables");
+        final String cacheKey = CacheKeys.SCHOOL_TIMETABLE+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
+
+        Optional<Object> optionalCache = Optional.ofNullable(redisTemplate.opsForValue().get(cacheKey));
+
+        if (optionalCache.isPresent()) {
+            log.info("cacheStaffDailyTimetableTaskSupervision {} " , optionalCache.get());
+            TimetableDTO timetableDTO = objectMapper.convertValue(optionalCache.get(), new TypeReference<>() {});
+            return timetableDTO;
+        }
+
+
         Optional<IdProjection> idProjectionOptional = timeTableRepository.findBySchool_IdAndAcademicTerm_Id(schoolDTO.getId(), schoolDTO.getAcademicTerm().getId());
 
 //                .orElseThrow(() -> new TelaNotFoundException(school.getName() + "Timetable not found from " + academicTerm.getTerm()));
@@ -633,6 +785,7 @@ public class CacheServiceImpl implements CacheService{
             }).toList();
 
             timetableDTO.setClassTimetables(classTimetableDTOS);
+            redisTemplate.opsForValue().set(cacheKey , timetableDTO , Duration.ofDays(30));
             return timetableDTO;
         } else {
             return new TimetableDTO();
