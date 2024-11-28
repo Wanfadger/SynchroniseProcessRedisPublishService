@@ -60,8 +60,13 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
 //        AcademicTerm academicTerm = academicTermRepository.activeAcademicTerm(Status.ACTIVE).orElseThrow(() -> new TelaNotFoundException("Active term not found"));
         // school information
         // school
+
+
+
         AcademicTermDTO academicTermDTO = cacheService.cacheActiveAcademicTerm();
         SchoolDTO schoolDTO = cacheService.cacheSchoolData(dto.telaSchoolNumber() ,academicTermDTO);
+
+        log.info("subjects {} " , cacheService.cacheSubjects(schoolDTO));
 
         try {
 //            MQResponseDto<SchoolDTO> responseDto = new MQResponseDto<>();
