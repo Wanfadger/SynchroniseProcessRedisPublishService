@@ -19,6 +19,7 @@ public interface CacheService {
     List<LearnerHeadCountDTO> cacheLearnerEnrollments(SchoolDTO schoolDTO);
     List<LearnerAttendanceDTO> cacheLearnerAttendance(SchoolDTO schoolDTO);
     List<StaffDailyTimeAttendanceDTO> cacheStaffDailyTimeAttendanceSupervision(SchoolDTO schoolDTO, String dateParam);
+
     List<StaffDailyAttendanceTaskSupervisionDTO> cacheStaffDailyTimetableTaskSupervision(SchoolDTO schoolDTO , String dateParam);
 
     List<StaffDailyTimetableDTO> cacheStaffDailyTimetables(SchoolDTO schoolDTO);
