@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SchoolDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SynchronizeSchoolDataDTO;
 import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.dto.SystemAppFeedBack;
-import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.AcademicTerm;
-import com.planetsystems.tela.api.SynchroniseProcessRedisPublishService.model.School;
 import org.springframework.http.ResponseEntity;
 
 public interface SynchronizeMobileDataService {
