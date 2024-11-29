@@ -23,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -60,6 +62,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.ACTIVE_ACADEMIC_TERM , cacheManager = "monthCacheManager")
+    @Transactional(readOnly = true)
     public AcademicTermDTO cacheActiveAcademicTerm() {
 
         final String cacheKey = CacheKeys.ACTIVE_ACADEMIC_TERM;
@@ -88,6 +91,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.SCHOOL , key = "#telaSchoolNumber" , cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public SchoolDTO cacheSchoolData(String telaSchoolNumber , AcademicTermDTO academicTermDTO) {
        try {
           final String cacheKey = CacheKeys.SCHOOL+"::"+telaSchoolNumber;
@@ -140,6 +144,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.CLASSES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public List<ClassDTO> cacheSchoolClasses(SchoolDTO schoolDTO) {
 
        final String cacheKey = CacheKeys.CLASSES+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
@@ -261,6 +266,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.STAFFS , key = "#schoolDTO.telaSchoolNumber", cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public List<StaffDTO> cacheSchoolStaffs(SchoolDTO schoolDTO) {
         final String cacheKey = CacheKeys.STAFFS+"::"+"school="+schoolDTO.getTelaSchoolNumber();
 
@@ -362,6 +368,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.CLOCKINS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public List<ClockInDTO> cacheSchoolTermClockIns(SchoolDTO schoolDTO) {
 
         final String cacheKey = CacheKeys.CLOCKINS+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
@@ -403,6 +410,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.CLOCKOUTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public List<ClockOutDTO> cacheSchoolTermClockOuts(SchoolDTO schoolDTO) {
 
         final String cacheKey = CacheKeys.CLOCKOUTS+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
@@ -447,6 +455,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.SUBJECTS , key = "{'term='+#schoolDTO.academicTerm.id}",cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public List<IdNameCodeDTO> cacheSubjects(SchoolDTO schoolDTO) {
         final String cacheKey = CacheKeys.SUBJECTS;
 
@@ -473,6 +482,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.LEARNER_HEADCOUNTS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public List<LearnerHeadCountDTO> cacheLearnerEnrollments(SchoolDTO schoolDTO) {
         final String cacheKey = CacheKeys.LEARNER_HEADCOUNTS+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
 
@@ -519,6 +529,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.LEARNER_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public  List<LearnerAttendanceDTO> cacheLearnerAttendance(SchoolDTO schoolDTO) {
         final String cacheKey = CacheKeys.LEARNER_ATTENDANCES+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
 
@@ -573,6 +584,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.STAFF_DAILY_TIME_ATTENDANCES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public List<StaffDailyTimeAttendanceDTO> cacheStaffDailyTimeAttendanceSupervision(SchoolDTO schoolDTO, String dateParam) {
         final String cacheKey = CacheKeys.STAFF_DAILY_TIME_ATTENDANCES+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
 
@@ -611,6 +623,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.STAFF_DAILY_TASK_SUPERVISIONS , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public List<StaffDailyAttendanceTaskSupervisionDTO> cacheStaffDailyTimetableTaskSupervision(SchoolDTO schoolDTO , String dateParam) {
         final String cacheKey = CacheKeys.STAFF_DAILY_TASK_SUPERVISIONS+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
 
@@ -655,6 +668,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.STAFF_DAILY_TIMETABLES , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}", cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public List<StaffDailyTimetableDTO> cacheStaffDailyTimetables(SchoolDTO schoolDTO) {
         final String cacheKey = CacheKeys.STAFF_DAILY_TIMETABLES+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
 
@@ -694,6 +708,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.DISTRICTS, cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public List<DistrictDTO> cacheDistricts() {
         final String cacheKey = CacheKeys.DISTRICTS;
 
@@ -719,6 +734,7 @@ public class CacheServiceImpl implements CacheService{
 
     @Override
 //    @Cacheable(value = CacheKeys.SCHOOL_TIMETABLE , key = "{'school='+#schoolDTO.telaSchoolNumber+',term='+#schoolDTO.academicTerm.id}" , cacheManager = "halfHourCacheManager")
+    @Transactional(readOnly = true)
     public TimetableDTO cacheSchoolTimetables(SchoolDTO schoolDTO) {
         final String cacheKey = CacheKeys.SCHOOL_TIMETABLE+"::"+"school="+schoolDTO.getTelaSchoolNumber()+",term="+schoolDTO.getAcademicTerm().getId();
 
