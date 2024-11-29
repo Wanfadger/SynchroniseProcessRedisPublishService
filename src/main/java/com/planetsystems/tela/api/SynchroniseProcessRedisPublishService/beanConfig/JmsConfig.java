@@ -19,8 +19,8 @@ public class JmsConfig {
         factory.setSubscriptionDurable(false);
         factory.setPubSubDomain(true);
         factory.setConcurrency("1");
-        factory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
-        factory.setSessionTransacted(false);
+//        factory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
+//        factory.setSessionTransacted(false);
         configurer.configure(factory, connectionFactory);
 
         factory.setErrorHandler(t -> {
