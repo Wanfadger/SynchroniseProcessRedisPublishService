@@ -26,17 +26,4 @@ public interface StaffDailyTimeTableRepository extends JpaRepository<StaffDailyT
             """)
     List<StaffDailyTimeTable> allByDate_School(LocalDate localDate, String schoolId);
 
-
-//	@EntityGraph(value = "staff-daily-timetable-graph" , type = EntityGraph.EntityGraphType.FETCH)
-//    List<StaffDailyTimeTable> findAllByStatusNot(Status status);
-//    List<StaffDailyTimeTable> findAllByStatus(Status status);
-//
-//    Optional<StaffDailyTimeTable> findByStatusNotAndId(Status status , String id);
-//    List<StaffDailyTimeTable> findAllByStatusNotAndAcademicTerm_IdAndSchoolStaff_School_IdAndLessonDate(Status status  , String termId , String schoolId , Date lessonDate);
-//
-//    Optional<StaffDailyTimeTable> findByStatusNotAndSchoolStaff_IdAndLessonDate(Status status , String schoolStaffId,Date lessonDate);
-//
-//    List<StaffDailyTimeTable> findAllByStatusNotAndSchoolStaff_IdAndLessonDate(Status status , String schoolStaffId,Date lessonDate);
-
-
 }
