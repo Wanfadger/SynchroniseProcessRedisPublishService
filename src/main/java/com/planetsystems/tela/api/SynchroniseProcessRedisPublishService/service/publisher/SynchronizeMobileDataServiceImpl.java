@@ -85,11 +85,6 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
            log.error(e.getMessage());
         }
 
-
-
-
-
-//
         return ResponseEntity.ok(new SystemAppFeedBack<>(true , "success" , true));
     }
 
