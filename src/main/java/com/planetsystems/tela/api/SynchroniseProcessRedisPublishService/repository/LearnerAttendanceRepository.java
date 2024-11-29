@@ -13,8 +13,7 @@ public interface LearnerAttendanceRepository extends JpaRepository<LearnerAttend
 
 
     @Query(value = """
-            SELECT LA FROM LearnerAttendances  AS LA
-            JOIN FETCH LA.schoolClass AS SC
+            SELECT LA FROM LearnerAttendances  AS LA JOIN FETCH LA.schoolClass AS SC 
             WHERE LA.status <> 8 AND SC.status <> 8 
             AND LA.academicTerm.id =:termId AND SC.school.id =:schoolId
             """)
@@ -22,10 +21,9 @@ public interface LearnerAttendanceRepository extends JpaRepository<LearnerAttend
 
 
     @Query(value = """
-            SELECT LA FROM LearnerAttendances  AS LA
-            JOIN FETCH LA.schoolClass AS SC
-            WHERE LA.status <> 8 AND SC.status <> 8 
-            AND LA.attendanceDate =:attendanceDate AND SC.school.id =:schoolId
+            SELECT LA FROM LearnerAttendances  AS LA JOIN FETCH LA.schoolClass AS SC 
+            WHERE LA.status <> 8 AND SC.status <> 8  AND LA.attendanceDate =:attendanceDate 
+            AND SC.school.id =:schoolId
             """)
     List<LearnerAttendance> allByDate_School(LocalDate attendanceDate, String schoolId);
 
