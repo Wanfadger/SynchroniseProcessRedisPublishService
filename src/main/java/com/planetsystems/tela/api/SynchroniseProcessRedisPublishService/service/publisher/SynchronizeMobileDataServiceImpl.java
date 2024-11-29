@@ -25,25 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataService {
-//    private final SchoolRepository schoolRepository;
-//    private final AcademicTermRepository academicTermRepository;
-//    private final SchoolClassRepository schoolClassRepository;
-//    private final SchoolStaffRepository schoolStaffRepository;
-//    final ClockInRepository clockInRepository;
-//    final ClockOutRepository clockOutRepository;
-//    final SubjectRepository subjectRepository;
-//    final LearnerEnrollmentRepository learnerEnrollmentRepository;
-//    final SNLearnerEnrollmentRepository snLearnerEnrollmentRepository;
-//    final LearnerAttendanceRepository learnerAttendanceRepository;
-//    final SNLearnerAttendanceRepository snLearnerAttendanceRepository;
-//    final DistrictRepository districtRepository;
-//    final StaffDailyAttendanceSupervisionRepository staffDailyAttendanceSupervisionRepository;
-//    final StaffDailyAttendanceTaskSupervisionRepository staffDailyAttendanceTaskSupervisionRepository;
-//    final TimeTableRepository timeTableRepository;
-//    final TimeTableLessonRepository timeTableLessonRepository;
-//    final StaffDailyTimeTableRepository staffDailyTimeTableRepository;
-//    final StaffDailyTimeTableLessonRepository staffDailyTimeTableLessonRepository;
-//    final JmsTemplate jmsTemplate;
+
     final QueueTopicPublisher queueTopicPublisher;
     final ObjectMapper objectMapper;
 
@@ -53,15 +35,6 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
     @Override
     public ResponseEntity<SystemAppFeedBack<Boolean>> synchronizeSchoolData(SynchronizeSchoolDataDTO dto) {
         log.info("synchronizeSchoolData {} " , dto);
-//        String dateParam = dto.date();
-//        IdProjection schoolIdProjection = schoolRepository.findByTelaSchoolUIDAndStatusNot(dto.telaNumber(), Status.DELETED).orElseThrow(() -> new TelaNotFoundException("School with " + dto.telaNumber() + " not found"));
-//
-//        School school = schoolRepository.findByStatusNotAndId(Status.DELETED, schoolIdProjection.getId()).orElseThrow(() -> new TelaNotFoundException("School not found"));
-//        AcademicTerm academicTerm = academicTermRepository.activeAcademicTerm(Status.ACTIVE).orElseThrow(() -> new TelaNotFoundException("Active term not found"));
-        // school information
-        // school
-
-
 
         AcademicTermDTO academicTermDTO = cacheService.cacheActiveAcademicTerm();
         SchoolDTO schoolDTO = cacheService.cacheSchoolData(dto.telaSchoolNumber() ,academicTermDTO);
@@ -69,11 +42,6 @@ public class SynchronizeMobileDataServiceImpl implements SynchronizeMobileDataSe
         log.info("subjects {} " , cacheService.cacheSubjects(schoolDTO));
 
         try {
-//            MQResponseDto<SchoolDTO> responseDto = new MQResponseDto<>();
-//            responseDto.setResponseType(ResponseType.SCHOOL);
-//            responseDto.setData(schoolDTO);
-//            queueTopicPublisher.publishTopicData(schoolDTO.getTelaSchoolNumber(), objectMapper.writeValueAsString(responseDto));
-//            log.info("publishSchoolDatafor {} {} {} ", schoolDTO.getAcademicTerm().getName(), schoolDTO.getName(), responseDto);
             publishSchoolData(schoolDTO);
 
 //                 classes
