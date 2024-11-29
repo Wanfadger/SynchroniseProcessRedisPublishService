@@ -10,14 +10,4 @@ import org.springframework.stereotype.Repository;
 public interface RegionRepository extends JpaRepository<Region, String> {
 	
     boolean existsByStatusNotAndNameIgnoreCase(Status status , String name);
-    
-//    @EntityGraph(value = "region-district-graph" , type = EntityGraph.EntityGraphType.FETCH)
-//    Optional<RegionProjection> findByStatusNotAndNameIgnoreCase(Status status , String name);
-//    List<RegionProjection> findAllByStatusNot(Status status);
-//    Optional<RegionProjection> findByStatusNotAndId(Status status , String id);
-//    Optional<RegionProjection> findByStatusNotAndCodeIgnoreCase(Status deleted, String code);
-//
-//
-//    @EntityGraph(value = "region-district-graph" , type = EntityGraph.EntityGraphType.FETCH)
-//    List<RegionWithDistrictProjection> getAllByStatusNot(Status status);
 }
