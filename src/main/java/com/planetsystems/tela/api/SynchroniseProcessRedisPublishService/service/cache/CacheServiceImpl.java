@@ -54,7 +54,7 @@ public class CacheServiceImpl implements CacheService{
     final StaffDailyAttendanceSupervisionRepository staffDailyAttendanceSupervisionRepository;
     final StaffDailyAttendanceTaskSupervisionRepository staffDailyAttendanceTaskSupervisionRepository;
 
-    final RedisTemplate redisTemplate;
+    final RedisTemplate<String , Object> redisTemplate;
     final ObjectMapper objectMapper;
 
 
