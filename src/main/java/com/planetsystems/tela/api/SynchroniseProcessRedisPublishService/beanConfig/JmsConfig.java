@@ -24,8 +24,7 @@ public class JmsConfig {
         configurer.configure(factory, connectionFactory);
 
         factory.setErrorHandler(t -> {
-            log.info("An error has occurred in the transaction");
-            log.error("topicConnectionFactory "+t.getCause().getMessage());
+//            log.error("topicConnectionFactory "+t.getCause().getMessage());
         });
 
         return factory;
