@@ -18,6 +18,4 @@ public class SynchroniseProcessRedisPublishServiceApplication  {
 		SpringApplication.run(SynchroniseProcessRedisPublishServiceApplication.class, args);
 	}
 
-
-
 }
